@@ -1,5 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { RegisterUserInput } from '../inputs/register-user.input';
+import { LoginInput } from '../inputs/login.input';
+import { RegisterInput } from '../inputs/register.input';
 import { AuthService } from '../services/auth.service';
 import { UserType } from '../types/user.type';
 
@@ -8,12 +9,12 @@ export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Mutation((returns) => UserType)
-  register(@Args('user') user: RegisterUserInput) {
+  register(@Args('user') user: RegisterInput) {
     return this.authService.register(user);
   }
 
-  @Query((returns) => [UserType])
-  logIn() {
-    return this.authService.logIn();
+  @Query((returns) => UserType)
+  logIn(@Args('user') user: LoginInput) {
+    return this.authService.logIn(user);
   }
 }

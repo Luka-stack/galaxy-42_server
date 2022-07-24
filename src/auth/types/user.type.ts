@@ -1,9 +1,11 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { UsersPlanets } from 'src/planets/entities/users-planets.entity';
+import { UsersPlanetType } from './users-planet.type';
 
 @ObjectType('User')
 export class UserType {
   @Field((type) => ID)
-  id: string;
+  uuid: string;
 
   @Field()
   username: string;
@@ -11,9 +13,12 @@ export class UserType {
   @Field()
   email: string;
 
-  @Field()
+  @Field({ nullable: true })
   bio: string;
 
-  @Field()
+  @Field({ nullable: true })
   topics: string;
+
+  @Field((type) => [UsersPlanetType])
+  planets: UsersPlanets[];
 }

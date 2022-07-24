@@ -1,12 +1,23 @@
-import { Column, Entity, Index, ObjectIdColumn, PrimaryColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { UsersPlanets } from 'src/planets/entities/users-planets.entity';
+import {
+  Column,
+  Entity,
+  Generated,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { UserInput } from '../inputs/user.input';
 
 @Entity('users')
 export class User {
-  @ObjectIdColumn()
-  _id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @PrimaryColumn()
-  id: string;
+  @Generated('uuid')
+  @Column()
+  uuid: string;
 
   @Index({ unique: true })
   @Column()
@@ -19,9 +30,19 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   bio: string;
 
-  @Column()
+  @Column({ nullable: true })
   topics: string;
+
+  @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.user)
+  planets: UsersPlanets[];
+
+  updateFields(userInput: UserInput) {
+    this.username = userInput.username || this.username;
+    this.email = userInput.email || this.email;
+    this.bio = userInput.bio || this.bio;
+    this.topics = userInput.topics || this.topics;
+  }
 }

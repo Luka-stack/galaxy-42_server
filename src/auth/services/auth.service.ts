@@ -1,10 +1,15 @@
 import { Repository } from 'typeorm';
-import { v4 as uuid } from 'uuid';
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { User } from '../entities/user.entity';
-import { RegisterUserInput } from '../inputs/register-user.input';
+import { RegisterInput } from '../inputs/register.input';
+import { LoginInput } from '../inputs/login.input';
 
 @Injectable()
 export class AuthService {
@@ -12,25 +17,54 @@ export class AuthService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  async register(registerUser: RegisterUserInput): Promise<User> {
+  async register(registerUser: RegisterInput): Promise<User> {
+    const errors: {
+      email?: string;
+      username?: string;
+    } = {};
+
+    const emailExists = await this.userRepo.count({
+      where: { email: registerUser.email },
+    });
+    if (emailExists) {
+      errors.email = 'Email already exists';
+    }
+
+    const userExists = await this.userRepo.count({
+      where: { username: registerUser.username },
+    });
+    if (userExists) {
+      errors.username = 'Username already in use';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      throw new BadRequestException(errors);
+    }
+
     const user = this.userRepo.create(registerUser);
-    user.id = uuid();
+    user.password = await bcrypt.hash(user.password, 6);
 
     try {
       return await this.userRepo.save(user);
     } catch (err) {
-      const error = err.writeErrors[0].err;
-      if (error.code === 11000) {
-        throw new ConflictException(
-          `${
-            error.errmsg.includes('email') ? 'Email' : 'Username'
-          } already in use`,
-        );
-      }
+      throw err;
     }
   }
 
-  logIn(): Promise<User[]> {
-    return this.userRepo.find();
+  async logIn(loginInput: LoginInput): Promise<User> {
+    const { email, password } = loginInput;
+
+    const user = await this.userRepo.findOneBy({ email });
+
+    if (!user) {
+      throw new NotFoundException('Wrong credentials');
+    }
+
+    const correctPassword = await bcrypt.compare(password, user.password);
+    if (!correctPassword) {
+      throw new NotFoundException('Wrong credentials');
+    }
+
+    return user;
   }
 }

@@ -3,26 +3,27 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { User } from './auth/entities/user.entity';
+import { PlanetsModule } from './planets/planets.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mongodb',
-      username: 'admin',
-      password: 'password',
-      host: 'localhost',
-      port: 3310,
-      database: 'galaxy_42',
-      useUnifiedTopology: true,
+      type: 'postgres',
+      cache: true,
+      autoLoadEntities: true,
       synchronize: true,
-      entities: [User],
+      host: 'localhost',
+      port: 4321,
+      database: 'galaxy_42',
+      username: 'postgres',
+      password: 'postgres',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
     }),
     AuthModule,
+    PlanetsModule,
   ],
 })
 export class AppModule {}
