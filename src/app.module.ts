@@ -4,6 +4,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { PlanetsModule } from './planets/planets.module';
+import { RequestsModule } from './requests/requests.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { PlanetsModule } from './planets/planets.module';
     }),
     AuthModule,
     PlanetsModule,
+    RequestsModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

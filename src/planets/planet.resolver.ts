@@ -6,7 +6,6 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
-import { UserService } from 'src/auth/services/user.service';
 import { Planet } from './entities/planet.entity';
 import { PlanetInput } from './inputs/planet.input';
 import { UpdatePlanetInput } from './inputs/update-planet.input';
