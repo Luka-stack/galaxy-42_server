@@ -1,5 +1,4 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { QueryNotificationsInput } from './inputs/query-notifications.input';
 import { NotificationsService } from './notifications.service';
 import { NotificationType } from './types/notification.type';
 
@@ -13,11 +12,6 @@ export class NotificationResolver {
     @Args('viewed', { nullable: true }) viewed?: boolean,
   ) {
     return this.notificationService.getNotifications(rejected, viewed);
-  }
-
-  @Mutation((returns) => NotificationType)
-  createNotification(@Args('userId') userId: string) {
-    return this.notificationService.createNotification(userId);
   }
 
   @Mutation((returns) => [NotificationType])

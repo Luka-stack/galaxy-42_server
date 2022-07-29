@@ -6,9 +6,6 @@ export class NotificationType {
   uuid: string;
 
   @Field()
-  content: string;
-
-  @Field()
   planetId: string;
 
   @Field()

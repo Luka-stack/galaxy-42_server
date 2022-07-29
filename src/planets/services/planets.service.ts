@@ -5,20 +5,19 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Planet } from './entities/planet.entity';
-import { PlanetInput } from './inputs/planet.input';
-import { UserService } from 'src/auth/services/user.service';
-import { UserRole } from './entities/user-role';
-import { UsersPlanets } from './entities/users-planets.entity';
-import { UpdatePlanetInput } from './inputs/update-planet.input';
+import { Planet } from '../entities/planet.entity';
+import { PlanetInput } from '../inputs/planet.input';
+import { UsersService } from '../../auth/services/users.service';
+import { UserRole } from '../entities/user-role';
+import { UpdatePlanetInput } from '../inputs/update-planet.input';
+import { UsersPlanetsService } from './users-planets.service';
 
 @Injectable()
-export class PlanetService {
+export class PlanetsService {
   constructor(
     @InjectRepository(Planet) private readonly planetRepo: Repository<Planet>,
-    @InjectRepository(UsersPlanets)
-    private readonly userPlanetsRepo: Repository<UsersPlanets>,
-    private readonly userService: UserService,
+    private readonly usersPlanetsService: UsersPlanetsService,
+    private readonly userService: UsersService,
   ) {}
 
   async getPlanets(): Promise<Planet[]> {
@@ -39,17 +38,8 @@ export class PlanetService {
     }
 
     const newPlanet = this.planetRepo.create(planetInput);
-
     const planetEntity = await this.planetRepo.save(newPlanet);
-
-    const relation = this.userPlanetsRepo.create({
-      userId: user.id,
-      planetId: planetEntity.id,
-      role: UserRole.ADMIN,
-      user,
-      planet: planetEntity,
-    });
-    this.userPlanetsRepo.save(relation);
+    this.usersPlanetsService.createRelation(user, planetEntity, UserRole.ADMIN);
 
     return planetEntity;
   }
@@ -76,10 +66,7 @@ export class PlanetService {
     return this.planetRepo.save(planet);
   }
 
-  async getPlanetsUser(planet: Planet) {
-    return this.userPlanetsRepo.find({
-      where: { planetId: planet.id },
-      relations: ['user'],
-    });
+  getPlanetsUser(planet: Planet) {
+    return this.usersPlanetsService.getPlanetsUser(planet);
   }
 }

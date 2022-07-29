@@ -1,3 +1,4 @@
+import { Field } from '@nestjs/graphql';
 import { User } from 'src/auth/entities/user.entity';
 import { Planet } from 'src/planets/entities/planet.entity';
 import {
@@ -10,8 +11,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('notifications')
-export class Notification {
+@Entity('requests')
+export class Request {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,17 +20,23 @@ export class Notification {
   @Column()
   uuid: string;
 
-  @Column()
-  rejected: boolean;
+  @Field()
+  userId: string;
 
-  @Column()
-  viewed: boolean;
+  @Field()
+  planetId: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.planets, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => Planet, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Planet, (planet) => planet.users, { onDelete: 'CASCADE' })
   planet: Planet;
+
+  @Field({ nullable: true })
+  content: string;
+
+  @Field()
+  viewed: boolean;
 
   @Index()
   @CreateDateColumn()

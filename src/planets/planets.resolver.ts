@@ -9,12 +9,12 @@ import {
 import { Planet } from './entities/planet.entity';
 import { PlanetInput } from './inputs/planet.input';
 import { UpdatePlanetInput } from './inputs/update-planet.input';
-import { PlanetService } from './planet.service';
+import { PlanetsService } from './services/planets.service';
 import { PlanetType } from './types/planet.type';
 
 @Resolver((of) => PlanetType)
-export class PlanetResolver {
-  constructor(private readonly planetService: PlanetService) {}
+export class PlanetsResolver {
+  constructor(private readonly planetService: PlanetsService) {}
 
   @Query((returns) => [PlanetType])
   planets() {

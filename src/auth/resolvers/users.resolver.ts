@@ -8,12 +8,12 @@ import {
 } from '@nestjs/graphql';
 import { User } from '../entities/user.entity';
 import { UserInput } from '../inputs/user.input';
-import { UserService } from '../services/user.service';
+import { UsersService } from '../services/users.service';
 import { UserType } from '../types/user.type';
 
 @Resolver((of) => UserType)
-export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+export class UsersResolver {
+  constructor(private readonly userService: UsersService) {}
 
   @Query((returns) => [UserType])
   getUsers() {

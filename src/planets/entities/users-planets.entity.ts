@@ -17,7 +17,7 @@ export class UsersPlanets {
   @Column()
   role: UserRole;
 
-  @ManyToOne(() => User, (user) => user.planets)
+  @ManyToOne(() => User, (user) => user.planets, { onDelete: 'CASCADE' })
   user: User;
 
   @ManyToOne(() => Planet, (planet) => planet.users, { onDelete: 'CASCADE' })

@@ -1,15 +1,15 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserService } from '../auth/services/user.service';
 import { Notification } from './entities/notification.entity';
 import { Repository, In } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { User } from 'src/auth/entities/user.entity';
+import { Planet } from 'src/planets/entities/planet.entity';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepo: Repository<Notification>,
-    private readonly userService: UserService,
   ) {}
 
   getNotifications(rejected?: boolean, viewed?: boolean) {
@@ -40,17 +40,14 @@ export class NotificationsService {
     return data.raw;
   }
 
-  async createNotification(userId: string) {
-    const user = await this.userService.findUserById(userId);
-
+  async createNotification(user: User, planet: Planet, rejected: boolean) {
     const notification = this.notificationRepo.create({
       user,
-      content: 'Test content',
-      planetId: 'PLANET_UUID',
-      rejected: Math.random() > 0.5,
-      viewed: Math.random() > 0.5,
+      planet,
+      rejected: rejected,
+      viewed: true,
     });
 
-    return this.notificationRepo.save(notification);
+    this.notificationRepo.save(notification);
   }
 }
