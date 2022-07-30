@@ -1,4 +1,3 @@
-import { Field } from '@nestjs/graphql';
 import { User } from 'src/auth/entities/user.entity';
 import { Planet } from 'src/planets/entities/planet.entity';
 import {
@@ -20,11 +19,11 @@ export class Request {
   @Column()
   uuid: string;
 
-  @Field()
-  userId: string;
+  @Column()
+  useruuid: string; // Lookup field
 
-  @Field()
-  planetId: string;
+  @Column()
+  planetuuid: string; // Lookup field
 
   @ManyToOne(() => User, (user) => user.planets, { onDelete: 'CASCADE' })
   user: User;
@@ -32,10 +31,10 @@ export class Request {
   @ManyToOne(() => Planet, (planet) => planet.users, { onDelete: 'CASCADE' })
   planet: Planet;
 
-  @Field({ nullable: true })
+  @Column({ nullable: true })
   content: string;
 
-  @Field()
+  @Column()
   viewed: boolean;
 
   @Index()

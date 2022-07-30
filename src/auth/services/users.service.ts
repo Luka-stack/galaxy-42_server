@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersPlanets } from 'src/planets/entities/users-planets.entity';
+import { UsersPlanets } from '../../planets/entities/users-planets.entity';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UserInput } from '../inputs/user.input';
@@ -17,8 +17,8 @@ export class UsersService {
     return this.userRepo.find();
   }
 
-  async updateUser(userId: string, userInput: UserInput): Promise<User> {
-    const user = await this.userRepo.findOneBy({ uuid: userId });
+  async updateUser(userUuid: string, userInput: UserInput): Promise<User> {
+    const user = await this.userRepo.findOneBy({ uuid: userUuid });
 
     if (!user) {
       throw new BadRequestException("User doesn't exist");
@@ -33,8 +33,8 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  findUserById(userId: string): Promise<User | null> {
-    return this.userRepo.findOneBy({ uuid: userId });
+  findUserById(userUuid: string): Promise<User | null> {
+    return this.userRepo.findOneBy({ uuid: userUuid });
   }
 
   getUsersPlanet(user: User) {

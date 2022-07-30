@@ -25,6 +25,12 @@ export class Notification {
   @Column()
   viewed: boolean;
 
+  @Column()
+  userId: number;
+
+  @Column()
+  planetId: number;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 

@@ -25,10 +25,10 @@ export class PlanetsService {
   }
 
   async createPlanet(
-    userId: string,
+    userUuid: string,
     planetInput: PlanetInput,
   ): Promise<Planet> {
-    const user = await this.userService.findUserById(userId);
+    const user = await this.userService.findUserById(userUuid);
 
     const dbPlanet = await this.planetRepo.findOneBy({
       name: planetInput.name,
@@ -68,5 +68,9 @@ export class PlanetsService {
 
   getPlanetsUser(planet: Planet) {
     return this.usersPlanetsService.getPlanetsUser(planet);
+  }
+
+  getPlanetById(planetId: number) {
+    return this.planetRepo.findOneBy({ id: planetId });
   }
 }

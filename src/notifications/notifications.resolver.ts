@@ -1,10 +1,22 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
+import { PlanetsService } from 'src/planets/services/planets.service';
 import { NotificationsService } from './notifications.service';
 import { NotificationType } from './types/notification.type';
+import { Notification } from './entities/notification.entity';
 
 @Resolver((of) => NotificationType)
 export class NotificationResolver {
-  constructor(private readonly notificationService: NotificationsService) {}
+  constructor(
+    private readonly notificationService: NotificationsService,
+    private readonly planetsService: PlanetsService,
+  ) {}
 
   @Query((returns) => [NotificationType])
   getNotifications(
@@ -16,17 +28,22 @@ export class NotificationResolver {
 
   @Mutation((returns) => [NotificationType])
   deleteNotification(
-    @Args({ name: 'notificationIds', type: () => [String] })
-    notificationIds: string[],
+    @Args({ name: 'notificationUuids', type: () => [String] })
+    notificationUuids: string[],
   ) {
-    return this.notificationService.deleteNotification(notificationIds);
+    return this.notificationService.deleteNotification(notificationUuids);
   }
 
   @Mutation((returns) => [NotificationType])
-  markAsSeen(
-    @Args({ name: 'notificationIds', type: () => [String] })
-    notificationIds: string[],
+  notificationsViewed(
+    @Args({ name: 'notificationUuids', type: () => [String] })
+    notificationUuids: string[],
   ) {
-    return this.notificationService.markAsSeen(notificationIds);
+    return this.notificationService.markAsSeen(notificationUuids);
+  }
+
+  @ResolveField()
+  async planet(@Parent() notification: Notification) {
+    return this.planetsService.getPlanetById(notification.planetId);
   }
 }

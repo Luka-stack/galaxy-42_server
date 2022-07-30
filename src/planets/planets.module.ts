@@ -10,6 +10,6 @@ import { UsersPlanetsService } from './services/users-planets.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Planet, UsersPlanets]), AuthModule],
   providers: [PlanetsService, UsersPlanetsService, PlanetsResolver],
-  exports: [UsersPlanetsService],
+  exports: [PlanetsService, UsersPlanetsService],
 })
 export class PlanetsModule {}

@@ -21,19 +21,19 @@ export class NotificationsService {
     });
   }
 
-  async deleteNotification(notificationIds: string[]) {
+  async deleteNotification(notificationUuids: string[]) {
     const notifications = await this.notificationRepo.findBy({
-      uuid: In(notificationIds),
+      uuid: In(notificationUuids),
     });
 
     return this.notificationRepo.remove(notifications);
   }
 
-  async markAsSeen(notificationIds: string[]) {
+  async markAsSeen(notificationUuids: string[]) {
     const data = await this.notificationRepo
       .createQueryBuilder()
       .update({ viewed: true })
-      .where({ uuid: In(notificationIds) })
+      .where({ uuid: In(notificationUuids) })
       .returning('*')
       .execute();
 
@@ -45,7 +45,7 @@ export class NotificationsService {
       user,
       planet,
       rejected: rejected,
-      viewed: true,
+      viewed: false,
     });
 
     this.notificationRepo.save(notification);

@@ -1,4 +1,4 @@
-import { UsersPlanets } from 'src/planets/entities/users-planets.entity';
+import { UsersPlanets } from '../../planets/entities/users-planets.entity';
 import {
   Column,
   Entity,

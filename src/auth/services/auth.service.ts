@@ -57,12 +57,12 @@ export class AuthService {
     const user = await this.userRepo.findOneBy({ email });
 
     if (!user) {
-      throw new NotFoundException('Wrong credentials');
+      throw new BadRequestException('Wrong credentials');
     }
 
     const correctPassword = await bcrypt.compare(password, user.password);
     if (!correctPassword) {
-      throw new NotFoundException('Wrong credentials');
+      throw new BadRequestException('Wrong credentials');
     }
 
     return user;
