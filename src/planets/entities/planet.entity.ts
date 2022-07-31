@@ -41,6 +41,7 @@ export class Planet {
     this.bio = planetInput.bio || this.bio;
     this.requirements = planetInput.requirements || this.requirements;
     this.topics = planetInput.topics || this.topics;
-    this.public = planetInput.public || this.public;
+    this.public =
+      planetInput.public !== undefined ? planetInput.public : this.public;
   }
 }

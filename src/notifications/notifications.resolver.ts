@@ -31,7 +31,7 @@ export class NotificationResolver {
     @Args({ name: 'notificationUuids', type: () => [String] })
     notificationUuids: string[],
   ) {
-    return this.notificationService.deleteNotification(notificationUuids);
+    return this.notificationService.deleteNotifications(notificationUuids);
   }
 
   @Mutation((returns) => [NotificationType])

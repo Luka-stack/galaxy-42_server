@@ -44,8 +44,8 @@ export class PlanetsService {
     return planetEntity;
   }
 
-  async deletePlanet(planetId: string) {
-    const planet = await this.planetRepo.findOneBy({ uuid: planetId });
+  async deletePlanet(planetUuid: string) {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
     if (!planet) {
       throw new NotFoundException('Planet not found');
     }
@@ -55,8 +55,8 @@ export class PlanetsService {
     return true;
   }
 
-  async updatePlanet(planetId: string, planetInput: UpdatePlanetInput) {
-    const planet = await this.planetRepo.findOneBy({ uuid: planetId });
+  async updatePlanet(planetUuid: string, planetInput: UpdatePlanetInput) {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
     if (!planet) {
       throw new NotFoundException('Planet not found');
     }

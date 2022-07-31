@@ -1,5 +1,5 @@
-import { User } from 'src/auth/entities/user.entity';
-import { Planet } from 'src/planets/entities/planet.entity';
+import { User } from '../../auth/entities/user.entity';
+import { Planet } from '../../planets/entities/planet.entity';
 import {
   Column,
   CreateDateColumn,

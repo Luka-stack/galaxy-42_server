@@ -21,7 +21,7 @@ export class NotificationsService {
     });
   }
 
-  async deleteNotification(notificationUuids: string[]) {
+  async deleteNotifications(notificationUuids: string[]) {
     const notifications = await this.notificationRepo.findBy({
       uuid: In(notificationUuids),
     });
@@ -44,7 +44,7 @@ export class NotificationsService {
     const notification = this.notificationRepo.create({
       user,
       planet,
-      rejected: rejected,
+      rejected,
       viewed: false,
     });
 

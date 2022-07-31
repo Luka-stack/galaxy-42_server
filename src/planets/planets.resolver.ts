@@ -31,15 +31,15 @@ export class PlanetsResolver {
 
   @Mutation((returns) => PlanetType)
   updatePlanet(
-    @Args('planetId') planetId: string,
+    @Args('planetUuid') planetUuid: string,
     @Args('planet') planet: UpdatePlanetInput,
   ) {
-    return this.planetService.updatePlanet(planetId, planet);
+    return this.planetService.updatePlanet(planetUuid, planet);
   }
 
   @Mutation((returns) => Boolean)
-  deletePlanet(@Args('planetId') planetId: string) {
-    return this.planetService.deletePlanet(planetId);
+  deletePlanet(@Args('planetUUid') planetUUid: string) {
+    return this.planetService.deletePlanet(planetUUid);
   }
 
   @ResolveField()
