@@ -9,7 +9,6 @@ export class LoginInput {
   email: string;
 
   @IsString()
-  @MinLength(7)
   @Field()
   password: string;
 }

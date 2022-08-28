@@ -130,14 +130,14 @@ describe('PlanetsService', () => {
       planet.bio = 'Old Bio';
       planet.requirements = 'Old Reqs';
       planet.topics = 'Old Topics';
-      planet.public = true;
+      planet.isPublic = true;
 
       planetsRepo.findOneBy.mockResolvedValue(planet);
       planetsRepo.save.mockImplementationOnce((planet) => planet);
 
       const planetInput = new UpdatePlanetInput();
       planetInput.bio = 'New Bio';
-      planetInput.public = false;
+      planetInput.isPublic = false;
       planetInput.requirements = 'New Reqs';
       planetInput.topics = 'new Topics';
 

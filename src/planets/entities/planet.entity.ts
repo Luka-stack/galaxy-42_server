@@ -32,7 +32,7 @@ export class Planet {
   topics: string;
 
   @Column()
-  public: boolean;
+  isPublic: boolean;
 
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.planet)
   users: UsersPlanets[];
@@ -41,7 +41,7 @@ export class Planet {
     this.bio = planetInput.bio || this.bio;
     this.requirements = planetInput.requirements || this.requirements;
     this.topics = planetInput.topics || this.topics;
-    this.public =
-      planetInput.public !== undefined ? planetInput.public : this.public;
+    this.isPublic =
+      planetInput.isPublic !== undefined ? planetInput.isPublic : this.isPublic;
   }
 }

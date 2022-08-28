@@ -8,7 +8,7 @@ export class UpdatePlanetInput {
   @Field({ nullable: true })
   bio: string;
 
-  @MinLength(50)
+  @MinLength(20)
   @IsOptional()
   @Field({ nullable: true })
   requirements: string;
@@ -20,5 +20,5 @@ export class UpdatePlanetInput {
   @IsBoolean()
   @IsOptional()
   @Field({ nullable: true })
-  public: boolean;
+  isPublic: boolean;
 }

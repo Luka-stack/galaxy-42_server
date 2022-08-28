@@ -1,11 +1,12 @@
 import { Repository } from 'typeorm';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { User } from '../entities/user.entity';
 import { RegisterInput } from '../inputs/register.input';
 import { LoginInput } from '../inputs/login.input';
+import { UserInputError } from 'apollo-server-express';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,7 @@ export class AuthService {
     }
 
     if (Object.keys(errors).length > 0) {
-      throw new BadRequestException(errors);
+      throw new UserInputError('Wrong input data', errors);
     }
 
     const user = this.userRepo.create(registerUser);
@@ -53,12 +54,12 @@ export class AuthService {
     const user = await this.userRepo.findOneBy({ email });
 
     if (!user) {
-      throw new BadRequestException('Wrong credentials');
+      throw new UserInputError('Wrong credentials');
     }
 
     const correctPassword = await bcrypt.compare(password, user.password);
     if (!correctPassword) {
-      throw new BadRequestException('Wrong credentials');
+      throw new UserInputError('Wrong credentials');
     }
 
     return user;

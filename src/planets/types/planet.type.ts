@@ -20,7 +20,7 @@ export class PlanetType {
   topics: string;
 
   @Field()
-  public: boolean;
+  isPublic: boolean;
 
   @Field((type) => [PlanetsUserType])
   users: UsersPlanets[];

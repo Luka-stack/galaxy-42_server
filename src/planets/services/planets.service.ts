@@ -11,6 +11,7 @@ import { UsersService } from '../../auth/services/users.service';
 import { UserRole } from '../entities/user-role';
 import { UpdatePlanetInput } from '../inputs/update-planet.input';
 import { UsersPlanetsService } from './users-planets.service';
+import { UserInputError } from 'apollo-server-express';
 
 @Injectable()
 export class PlanetsService {
@@ -34,7 +35,7 @@ export class PlanetsService {
       name: planetInput.name,
     });
     if (dbPlanet) {
-      throw new BadRequestException('Name has to be unique');
+      throw new UserInputError('Name has to be unique');
     }
 
     const newPlanet = this.planetRepo.create(planetInput);

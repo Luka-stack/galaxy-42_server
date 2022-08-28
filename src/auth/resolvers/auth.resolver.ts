@@ -14,7 +14,7 @@ export class AuthResolver {
   }
 
   @Query((returns) => UserType)
-  logIn(@Args('user') user: LoginInput) {
+  login(@Args('user') user: LoginInput) {
     return this.authService.logIn(user);
   }
 }

@@ -6,6 +6,9 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
+import { createWriteStream } from 'fs';
+
+import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 import { Planet } from './entities/planet.entity';
 import { PlanetInput } from './inputs/planet.input';
 import { UpdatePlanetInput } from './inputs/update-planet.input';
@@ -38,8 +41,24 @@ export class PlanetsResolver {
   }
 
   @Mutation((returns) => Boolean)
-  deletePlanet(@Args('planetUUid') planetUUid: string) {
-    return this.planetService.deletePlanet(planetUUid);
+  deletePlanet(@Args('planetUuid') planetUuid: string) {
+    return this.planetService.deletePlanet(planetUuid);
+  }
+
+  @Mutation(() => Boolean)
+  async uploadPlanetCover(
+    @Args({ name: 'file', type: () => GraphQLUpload })
+    { createReadStream, filename }: any,
+  ) {
+    return new Promise(async (resolve) => {
+      createReadStream()
+        .pipe(createWriteStream(`./uploads/${filename}`))
+        .on('finish', () => resolve(true))
+        .on('error', (error) => {
+          console.log(error);
+          resolve(false);
+        });
+    });
   }
 
   @ResolveField()

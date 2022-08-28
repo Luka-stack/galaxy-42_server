@@ -11,7 +11,7 @@ export class PlanetInput {
   @Field()
   bio: string;
 
-  @MinLength(50)
+  @MinLength(20)
   @Field()
   requirements: string;
 
@@ -20,5 +20,5 @@ export class PlanetInput {
 
   @IsBoolean()
   @Field()
-  public: boolean;
+  isPublic: boolean;
 }
