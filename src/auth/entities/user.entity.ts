@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserInput } from '../inputs/user.input';
+import { Expose } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -35,8 +36,18 @@ export class User {
   @Column({ nullable: true })
   topics: string;
 
+  @Column({ nullable: true })
+  imageUrn: string;
+
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.user)
   planets: UsersPlanets[];
+
+  @Expose()
+  get imageUrl(): string {
+    return this.imageUrn
+      ? `${process.env.APP_URL}/profiles/${this.imageUrn}`
+      : 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+  }
 
   updateFields(userInput: UserInput) {
     this.username = userInput.username || this.username;

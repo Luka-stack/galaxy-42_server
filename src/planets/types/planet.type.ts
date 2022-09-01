@@ -22,6 +22,9 @@ export class PlanetType {
   @Field()
   isPublic: boolean;
 
+  @Field()
+  imageUrl: string;
+
   @Field((type) => [PlanetsUserType])
   users: UsersPlanets[];
 }

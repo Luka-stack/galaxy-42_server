@@ -19,6 +19,9 @@ export class UserType {
   @Field({ nullable: true })
   topics: string;
 
+  @Field()
+  imageUrl: string;
+
   @Field((type) => [UsersPlanetType])
   planets: UsersPlanets[];
 }

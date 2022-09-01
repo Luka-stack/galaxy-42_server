@@ -12,6 +12,8 @@ import { UserRole } from '../entities/user-role';
 import { UpdatePlanetInput } from '../inputs/update-planet.input';
 import { UsersPlanetsService } from './users-planets.service';
 import { UserInputError } from 'apollo-server-express';
+import { createWriteStream, unlinkSync } from 'fs';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class PlanetsService {
@@ -59,7 +61,27 @@ export class PlanetsService {
   async updatePlanet(planetUuid: string, planetInput: UpdatePlanetInput) {
     const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
     if (!planet) {
-      throw new NotFoundException('Planet not found');
+      throw new UserInputError('Planet not found');
+    }
+
+    if (Object.entries(planetInput).length === 0) {
+      return planet;
+    }
+
+    if (planetInput.image) {
+      if (planet.imageUrn) {
+        // delete old image
+        unlinkSync(`public\\planets\\${planet.imageUrn}`);
+      }
+
+      // upload new
+      const { createReadStream, filename } = await planetInput.image;
+      const randomName = randomUUID() + filename;
+      planet.imageUrn = randomName;
+
+      createReadStream().pipe(
+        createWriteStream(`./public/planets/${randomName}`),
+      );
     }
 
     planet.updateFields(planetInput);

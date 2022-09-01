@@ -4,6 +4,11 @@ import { UsersPlanets } from '../../planets/entities/users-planets.entity';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UserInput } from '../inputs/user.input';
+import { UserInputError } from 'apollo-server-express';
+import { createWriteStream, fstat, unlinkSync } from 'fs';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -21,11 +26,54 @@ export class UsersService {
     const user = await this.userRepo.findOneBy({ uuid: userUuid });
 
     if (!user) {
-      throw new BadRequestException("User doesn't exist");
+      throw new UserInputError("User doesn't exist");
     }
 
     if (Object.entries(userInput).length === 0) {
       return user;
+    }
+
+    const errors: {
+      email?: string;
+      username?: string;
+    } = {};
+
+    if (userInput.email !== user.email) {
+      const emailExists = await this.userRepo.count({
+        where: { email: userInput.email },
+      });
+      if (emailExists) {
+        errors.email = 'Email already exists';
+      }
+    }
+
+    if (userInput.username !== userInput.username) {
+      const userExists = await this.userRepo.count({
+        where: { username: userInput.username },
+      });
+      if (userExists) {
+        errors.username = 'Username already in use';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      throw new UserInputError('Wrong input data', errors);
+    }
+
+    if (userInput.image) {
+      if (user.imageUrn) {
+        // delete old image
+        unlinkSync(`public\\profiles\\${user.imageUrn}`);
+      }
+
+      // upload new
+      const { createReadStream, filename } = await userInput.image;
+      const randomName = randomUUID() + filename;
+      user.imageUrn = randomName;
+
+      createReadStream().pipe(
+        createWriteStream(`./public/profiles/${randomName}`),
+      );
     }
 
     user.updateFields(userInput);

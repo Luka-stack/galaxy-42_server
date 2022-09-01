@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -34,8 +35,18 @@ export class Planet {
   @Column()
   isPublic: boolean;
 
+  @Column({ nullable: true })
+  imageUrn: string;
+
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.planet)
   users: UsersPlanets[];
+
+  @Expose()
+  get imageUrl(): string {
+    return this.imageUrn
+      ? `${process.env.APP_URL}/planets/${this.imageUrn}`
+      : 'https://picsum.photos/900/400';
+  }
 
   updateFields(planetInput: UpdatePlanetInput) {
     this.bio = planetInput.bio || this.bio;

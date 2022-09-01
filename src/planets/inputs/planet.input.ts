@@ -1,6 +1,8 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsBoolean, MinLength } from 'class-validator';
+import { IsBoolean, IsOptional, MinLength } from 'class-validator';
+import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 
+import { FileUpload } from 'src/common/helpers/file-upload-type';
 @InputType()
 export class PlanetInput {
   @MinLength(1)
@@ -21,4 +23,8 @@ export class PlanetInput {
   @IsBoolean()
   @Field()
   isPublic: boolean;
+
+  @IsOptional()
+  @Field(() => GraphQLUpload, { nullable: true })
+  image: Promise<FileUpload>;
 }
