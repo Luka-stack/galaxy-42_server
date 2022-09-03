@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UsersPlanets } from '../../planets/entities/users-planets.entity';
 import { User } from '../entities/user.entity';
-import { UsersService } from '../services/users.service';
+import { UsersService } from '../users.service';
 import { BadRequestException } from '@nestjs/common';
 import { UserInput } from '../inputs/user.input';
 
@@ -106,7 +106,7 @@ describe('UsersService', () => {
     it('return user', async () => {
       userRepo.findOneBy.mockResolvedValue(mockUser);
 
-      const result = await usersService.findUserById('id');
+      const result = await usersService.findUserByUuid('id');
 
       expect(result).toEqual(mockUser);
     });

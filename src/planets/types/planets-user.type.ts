@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { User } from '../../auth/entities/user.entity';
-import { UserType } from '../../auth/types/user.type';
+import { User } from '../../users/entities/user.entity';
+import { UserType } from '../../users/types/user.type';
 import { UserRole } from '../entities/user-role';
 
 @ObjectType('PlanetsUser')

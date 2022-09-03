@@ -1,3 +1,4 @@
+import { UseGuards } from '@nestjs/common';
 import {
   Resolver,
   Query,
@@ -7,6 +8,9 @@ import {
   Parent,
 } from '@nestjs/graphql';
 
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { GetUser } from '../common/decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 import { Planet } from './entities/planet.entity';
 import { PlanetInput } from './inputs/planet.input';
 import { UpdatePlanetInput } from './inputs/update-planet.input';
@@ -23,24 +27,25 @@ export class PlanetsResolver {
   }
 
   @Mutation(() => PlanetType)
-  createPlanet(
-    @Args('userId') userId: string,
-    @Args('planet') planet: PlanetInput,
-  ) {
-    return this.planetService.createPlanet(userId, planet);
+  @UseGuards(JwtAuthGuard)
+  createPlanet(@Args('planet') planet: PlanetInput, @GetUser() user: User) {
+    return this.planetService.createPlanet(user, planet);
   }
 
   @Mutation(() => PlanetType)
+  @UseGuards(JwtAuthGuard)
   updatePlanet(
     @Args('planetUuid') planetUuid: string,
     @Args('planet') planet: UpdatePlanetInput,
+    @GetUser() user: User,
   ) {
-    return this.planetService.updatePlanet(planetUuid, planet);
+    return this.planetService.updatePlanet(planetUuid, planet, user);
   }
 
   @Mutation(() => Boolean)
-  deletePlanet(@Args('planetUuid') planetUuid: string) {
-    return this.planetService.deletePlanet(planetUuid);
+  @UseGuards(JwtAuthGuard)
+  deletePlanet(@Args('planetUuid') planetUuid: string, @GetUser() user: User) {
+    return this.planetService.deletePlanet(planetUuid, user);
   }
 
   @ResolveField()

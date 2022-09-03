@@ -1,0 +1,133 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CombineRequest {
+  planets: [Request!]!
+  users: [Request!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponseType {
+  accessToken: String!
+  user: User!
+}
+
+type Mutation {
+  createPlanet(planet: PlanetInput!): Planet!
+  createRequest(request: RequestInput!): Request!
+  deleteNotification(notificationUuids: [String!]!): [Notification!]!
+  deletePlanet(planetUuid: String!): Boolean!
+  notificationsViewed(notificationUuids: [String!]!): [Notification!]!
+  register(user: RegisterInput!): User!
+  requestsViewed(requestUuids: [String!]!): [Request!]!
+  resolveRequest(rejected: Boolean!, requestUuid: String!): Request!
+  updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
+  updateUser(userInput: UserInput!): User!
+}
+
+type Notification {
+  createdAt: DateTime!
+  planet: Planet!
+  rejected: Boolean!
+  uuid: ID!
+  viewed: Boolean!
+}
+
+type Planet {
+  bio: String!
+  imageUrl: String!
+  isPublic: Boolean!
+  name: String!
+  requirements: String!
+  topics: String!
+  users: [PlanetsUser!]!
+  uuid: ID!
+}
+
+input PlanetInput {
+  bio: String!
+  image: Upload
+  isPublic: Boolean!
+  name: String!
+  requirements: String!
+  topics: String!
+}
+
+type PlanetsUser {
+  role: String!
+  user: User!
+}
+
+type Query {
+  getNotifications: [Notification!]!
+  getRequests: CombineRequest!
+  getUser(userUuid: String!): User!
+  getUsers: [User!]!
+  login(login: LoginInput!): LoginResponseType!
+  me: User!
+  planets: [Planet!]!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+  username: String!
+}
+
+type Request {
+  content: String
+  createdAt: DateTime!
+  planet: Planet!
+  user: User!
+  uuid: ID!
+  viewed: Boolean!
+}
+
+input RequestInput {
+  content: String
+  planetUuid: String!
+}
+
+input UpdatePlanetInput {
+  bio: String
+  image: Upload
+  isPublic: Boolean
+  requirements: String
+  topics: String
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type User {
+  bio: String
+  email: String!
+  imageUrl: String!
+  planets: [UsersPlanet!]!
+  topics: String
+  username: String!
+  uuid: ID!
+}
+
+input UserInput {
+  bio: String
+  email: String
+  image: Upload
+  topics: String
+  username: String
+}
+
+type UsersPlanet {
+  planet: Planet!
+  role: String!
+}

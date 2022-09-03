@@ -1,38 +1,29 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Planet } from '../entities/planet.entity';
-import { PlanetInput } from '../inputs/planet.input';
-import { UsersService } from '../../auth/services/users.service';
-import { UserRole } from '../entities/user-role';
-import { UpdatePlanetInput } from '../inputs/update-planet.input';
-import { UsersPlanetsService } from './users-planets.service';
 import { UserInputError } from 'apollo-server-express';
 import { createWriteStream, unlinkSync } from 'fs';
 import { randomUUID } from 'crypto';
+
+import { Planet } from '../entities/planet.entity';
+import { PlanetInput } from '../inputs/planet.input';
+import { UserRole } from '../entities/user-role';
+import { UpdatePlanetInput } from '../inputs/update-planet.input';
+import { UsersPlanetsService } from './users-planets.service';
+import { User } from '../../users/entities/user.entity';
 
 @Injectable()
 export class PlanetsService {
   constructor(
     @InjectRepository(Planet) private readonly planetRepo: Repository<Planet>,
     private readonly usersPlanetsService: UsersPlanetsService,
-    private readonly userService: UsersService,
   ) {}
 
   async getPlanets(): Promise<Planet[]> {
     return this.planetRepo.find();
   }
 
-  async createPlanet(
-    userUuid: string,
-    planetInput: PlanetInput,
-  ): Promise<Planet> {
-    const user = await this.userService.findUserById(userUuid);
-
+  async createPlanet(user: User, planetInput: PlanetInput): Promise<Planet> {
     const dbPlanet = await this.planetRepo.findOneBy({
       name: planetInput.name,
     });
@@ -47,10 +38,18 @@ export class PlanetsService {
     return planetEntity;
   }
 
-  async deletePlanet(planetUuid: string) {
+  async deletePlanet(planetUuid: string, user: User): Promise<boolean> {
     const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
     if (!planet) {
       throw new NotFoundException('Planet not found');
+    }
+
+    const isAdmin = user.planets.some(
+      (p) => p.planetId === planet.id && p.role === UserRole.ADMIN,
+    );
+
+    if (!isAdmin) {
+      throw new UserInputError("You don't have access to this planet");
     }
 
     await this.planetRepo.remove(planet);
@@ -58,10 +57,22 @@ export class PlanetsService {
     return true;
   }
 
-  async updatePlanet(planetUuid: string, planetInput: UpdatePlanetInput) {
+  async updatePlanet(
+    planetUuid: string,
+    planetInput: UpdatePlanetInput,
+    user: User,
+  ) {
     const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
     if (!planet) {
       throw new UserInputError('Planet not found');
+    }
+
+    const isAdmin = user.planets.some(
+      (p) => p.planetId === planet.id && p.role === UserRole.ADMIN,
+    );
+
+    if (!isAdmin) {
+      throw new UserInputError("You don't have access to this planet");
     }
 
     if (Object.entries(planetInput).length === 0) {

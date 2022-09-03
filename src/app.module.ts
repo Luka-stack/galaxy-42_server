@@ -10,15 +10,16 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { getEnvPath } from './common/helpers/env.helper';
+import { UsersModule } from './users/users.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       cache: true,
@@ -31,10 +32,12 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
       password: 'postgres',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      autoSchemaFile: true,
+      autoSchemaFile: join(process.cwd(), 'src/schema.qgl'),
+      sortSchema: true,
       driver: ApolloDriver,
     }),
     AuthModule,
+    UsersModule,
     PlanetsModule,
     RequestsModule,
     NotificationsModule,

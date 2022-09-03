@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../auth/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Planet } from '../planets/entities/planet.entity';
 import { PlanetsModule } from '../planets/planets.module';

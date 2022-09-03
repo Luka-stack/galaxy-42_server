@@ -9,7 +9,7 @@ export class PlanetInput {
   @Field()
   name: string;
 
-  @MinLength(50)
+  @MinLength(20)
   @Field()
   bio: string;
 

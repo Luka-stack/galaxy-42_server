@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Planet } from '../entities/planet.entity';
 import { UserRole } from '../entities/user-role';
 import { UsersPlanets } from '../entities/users-planets.entity';

@@ -1,9 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Notification } from './entities/notification.entity';
 import { Repository, In } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { User } from 'src/auth/entities/user.entity';
-import { Planet } from 'src/planets/entities/planet.entity';
+
+import { Notification } from './entities/notification.entity';
+import { User } from '../users/entities/user.entity';
+import { Planet } from '../planets/entities/planet.entity';
 
 @Injectable()
 export class NotificationsService {
@@ -12,28 +13,29 @@ export class NotificationsService {
     private readonly notificationRepo: Repository<Notification>,
   ) {}
 
-  getNotifications(rejected?: boolean, viewed?: boolean) {
+  getNotifications(user: User) {
     return this.notificationRepo.find({
-      where: { rejected, viewed },
+      where: { userId: user.id },
       order: {
         createdAt: 'DESC',
       },
     });
   }
 
-  async deleteNotifications(notificationUuids: string[]) {
+  async deleteNotifications(notificationUuids: string[], user: User) {
     const notifications = await this.notificationRepo.findBy({
       uuid: In(notificationUuids),
+      userId: user.id,
     });
 
     return this.notificationRepo.remove(notifications);
   }
 
-  async markAsSeen(notificationUuids: string[]) {
+  async markAsSeen(notificationUuids: string[], user) {
     const data = await this.notificationRepo
       .createQueryBuilder()
       .update({ viewed: true })
-      .where({ uuid: In(notificationUuids) })
+      .where({ uuid: In(notificationUuids), userId: user.id })
       .returning('*')
       .execute();
 

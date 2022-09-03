@@ -7,7 +7,7 @@ import { UsersPlanetsService } from '../planets/services/users-planets.service';
 import { RequestsService } from '../requests/requests.service';
 import { Request } from '../requests/entities/request.entity';
 import { Planet } from '../planets/entities/planet.entity';
-import { User } from '../auth/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { RequestInput } from './inputes/request.input';
 import { UsersPlanets } from '../planets/entities/users-planets.entity';
 

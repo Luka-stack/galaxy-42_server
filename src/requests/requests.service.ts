@@ -4,14 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, In } from 'typeorm';
+import { UserInputError } from 'apollo-server-express';
+
 import { NotificationsService } from '../notifications/notifications.service';
 import { Planet } from '../planets/entities/planet.entity';
 import { UserRole } from '../planets/entities/user-role';
 import { UsersPlanetsService } from '../planets/services/users-planets.service';
-import { Repository, In } from 'typeorm';
 import { Request } from './entities/request.entity';
 import { RequestInput } from './inputes/request.input';
-import { User } from '../auth/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class RequestsService {
@@ -26,16 +28,31 @@ export class RequestsService {
     private readonly usersPlanetsService: UsersPlanetsService,
   ) {}
 
-  getRequests(planetuuid?: string, useruuid?: string, viewed?: boolean) {
-    return this.requestRepo.find({
-      where: { planetuuid, useruuid, viewed },
+  async getRequests(user: User) {
+    const adminPlanets = user.planets.map((planet) => {
+      if (planet.role === UserRole.ADMIN) {
+        return planet.planetId;
+      }
+    });
+
+    const myRequest = await this.requestRepo.find({
+      where: { userId: user.id },
       order: {
         createdAt: 'DESC',
       },
     });
+
+    const planetsRequests = await this.requestRepo.find({
+      where: { planetId: In(adminPlanets) },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return { users: myRequest, planets: planetsRequests };
   }
 
-  async createRequest(userUuid: string, requestInput: RequestInput) {
+  async createRequest(requestInput: RequestInput, user: User) {
     const planet = await this.planetRepo.findOne({
       where: { uuid: requestInput.planetUuid },
       relations: ['users'],
@@ -44,40 +61,41 @@ export class RequestsService {
       throw new NotFoundException('Planet not found');
     }
 
-    const user = await this.userRepo.findOneBy({ uuid: userUuid });
-
     const asignUser = planet.users.find((u) => u.userId === user.id);
     if (asignUser) {
       throw new BadRequestException('User already belongs to this planet');
     }
 
+    const usersReq = await this.requestRepo.findOneBy({ userId: user.id });
+    if (usersReq) {
+      throw new UserInputError('You already have sent this request');
+    }
+
     const request = this.requestRepo.create({
-      useruuid: userUuid,
       user,
       planet,
-      planetuuid: planet.uuid,
-      content: requestInput.content,
       viewed: false,
+      content: requestInput.content,
     });
 
     return this.requestRepo.save(request);
   }
 
-  async markAsSeen(requestUuids: string[]) {
+  async markAsSeen(requestUuids: string[], user: User) {
     const data = await this.requestRepo
       .createQueryBuilder()
       .update({ viewed: true })
-      .where({ uuid: In(requestUuids) })
+      .where({ uuid: In(requestUuids), userId: user.id })
       .returning('*')
       .execute();
 
     return data.raw;
   }
 
-  async resolveRequest(requestUuid: string, rejected: boolean) {
+  async resolveRequest(requestUuid: string, rejected: boolean, user: User) {
     const request = await this.requestRepo.findOne({
-      where: { uuid: requestUuid },
-      relations: ['user', 'planet'],
+      where: { uuid: requestUuid, userId: user.id },
+      relations: ['planet'],
     });
     if (!request) {
       throw new NotFoundException('Request not found');
@@ -85,14 +103,14 @@ export class RequestsService {
 
     if (!rejected) {
       this.usersPlanetsService.createRelation(
-        request.user,
+        user,
         request.planet,
         UserRole.USER,
       );
     }
 
     this.notificationsService.createNotification(
-      request.user,
+      user,
       request.planet,
       rejected,
     );
@@ -100,11 +118,11 @@ export class RequestsService {
     return this.requestRepo.remove(request);
   }
 
-  getPlanetByUuid(planetUuid: string) {
-    return this.planetRepo.findOneBy({ uuid: planetUuid });
+  getPlanetByUuid(planetId: number) {
+    return this.planetRepo.findOneBy({ id: planetId });
   }
 
-  getUserByUuid(UserUuid: string) {
-    return this.userRepo.findOneBy({ uuid: UserUuid });
+  getUserByUuid(userId: number) {
+    return this.userRepo.findOneBy({ id: userId });
   }
 }

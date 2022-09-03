@@ -4,7 +4,7 @@ import { UsersPlanetType } from './users-planet.type';
 
 @ObjectType('User')
 export class UserType {
-  @Field((type) => ID)
+  @Field(() => ID)
   uuid: string;
 
   @Field()
@@ -22,6 +22,6 @@ export class UserType {
   @Field()
   imageUrl: string;
 
-  @Field((type) => [UsersPlanetType])
+  @Field(() => [UsersPlanetType])
   planets: UsersPlanets[];
 }

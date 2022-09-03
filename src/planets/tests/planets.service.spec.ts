@@ -1,8 +1,8 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from '../../auth/entities/user.entity';
-import { UsersService } from '../../auth/services/users.service';
+import { User } from '../../users/entities/user.entity';
+import { UsersService } from '../../users/users.service';
 import { Planet } from '../entities/planet.entity';
 import { PlanetInput } from '../inputs/planet.input';
 import { UpdatePlanetInput } from '../inputs/update-planet.input';

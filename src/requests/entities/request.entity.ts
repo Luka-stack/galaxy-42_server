@@ -1,4 +1,4 @@
-import { User } from '../../auth/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Planet } from '../../planets/entities/planet.entity';
 import {
   Column,
@@ -20,10 +20,10 @@ export class Request {
   uuid: string;
 
   @Column()
-  useruuid: string; // Lookup field
+  userId: number;
 
   @Column()
-  planetuuid: string; // Lookup field
+  planetId: number;
 
   @ManyToOne(() => User, (user) => user.planets, { onDelete: 'CASCADE' })
   user: User;
