@@ -17,9 +17,9 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '..', 'public'),
-    // }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       cache: true,
@@ -35,6 +35,13 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
       autoSchemaFile: join(process.cwd(), 'src/schema.qgl'),
       sortSchema: true,
       driver: ApolloDriver,
+      cors: {
+        origin: 'http://localhost:3000',
+        credentials: true,
+      },
+      context: ({ req, res }) => {
+        return { req, res };
+      },
     }),
     AuthModule,
     UsersModule,

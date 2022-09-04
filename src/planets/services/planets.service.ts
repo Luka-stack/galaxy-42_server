@@ -32,6 +32,18 @@ export class PlanetsService {
     }
 
     const newPlanet = this.planetRepo.create(planetInput);
+
+    if (planetInput.image) {
+      // upload new
+      const { createReadStream, filename } = await planetInput.image;
+      const randomName = randomUUID() + filename;
+      newPlanet.imageUrn = randomName;
+
+      createReadStream().pipe(
+        createWriteStream(`./public/planets/${randomName}`),
+      );
+    }
+
     const planetEntity = await this.planetRepo.save(newPlanet);
     this.usersPlanetsService.createRelation(user, planetEntity, UserRole.ADMIN);
 

@@ -8,6 +8,6 @@ export class UsersPlanetType {
   @Field()
   role: UserRole;
 
-  @Field((type) => PlanetType)
+  @Field(() => PlanetType)
   planet: Planet;
 }

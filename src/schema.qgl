@@ -17,11 +17,6 @@ input LoginInput {
   password: String!
 }
 
-type LoginResponseType {
-  accessToken: String!
-  user: User!
-}
-
 type Mutation {
   createPlanet(planet: PlanetInput!): Planet!
   createRequest(request: RequestInput!): Request!
@@ -73,7 +68,7 @@ type Query {
   getRequests: CombineRequest!
   getUser(userUuid: String!): User!
   getUsers: [User!]!
-  login(login: LoginInput!): LoginResponseType!
+  login(login: LoginInput!): User!
   me: User!
   planets: [Planet!]!
 }

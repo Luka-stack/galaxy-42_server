@@ -2,10 +2,10 @@ import { Field, InputType } from '@nestjs/graphql';
 import { IsBoolean, IsOptional, MinLength } from 'class-validator';
 import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 
-import { FileUpload } from 'src/common/helpers/file-upload-type';
+import { FileUpload } from '../../common/helpers/file-upload-type';
 @InputType()
 export class UpdatePlanetInput {
-  @MinLength(50)
+  @MinLength(20)
   @IsOptional()
   @Field({ nullable: true })
   bio: string;
