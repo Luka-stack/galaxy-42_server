@@ -23,6 +23,14 @@ export class PlanetsService {
     return this.planetRepo.find();
   }
 
+  async getPlanet(planetUuid: string): Promise<Planet> {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
+    if (!planet) {
+      throw new UserInputError('Planet not found');
+    }
+    return planet;
+  }
+
   async createPlanet(user: User, planetInput: PlanetInput): Promise<Planet> {
     const dbPlanet = await this.planetRepo.findOneBy({
       name: planetInput.name,

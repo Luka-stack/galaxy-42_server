@@ -26,6 +26,11 @@ export class PlanetsResolver {
     return this.planetService.getPlanets();
   }
 
+  @Query(() => PlanetType)
+  getPlanet(@Args('planetUuid') planetUuid: string) {
+    return this.planetService.getPlanet(planetUuid);
+  }
+
   @Mutation(() => PlanetType)
   @UseGuards(JwtAuthGuard)
   createPlanet(@Args('planet') planet: PlanetInput, @GetUser() user: User) {
