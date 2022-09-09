@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserInputError } from 'apollo-server-express';
+import { ForbiddenError, UserInputError } from 'apollo-server-express';
 import { createWriteStream, unlinkSync } from 'fs';
 import { randomUUID } from 'crypto';
 
@@ -28,6 +32,23 @@ export class PlanetsService {
     if (!planet) {
       throw new UserInputError('Planet not found');
     }
+    return planet;
+  }
+
+  async getPlanetAuth(planetUuid: string, user: User): Promise<Planet> {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
+    if (!planet) {
+      throw new UserInputError('Planet not found');
+    }
+
+    const isAdmin = user.planets.some(
+      (p) => p.planetId === planet.id && p.role === 'ADMIN',
+    );
+
+    if (!isAdmin) {
+      throw new ForbiddenException();
+    }
+
     return planet;
   }
 

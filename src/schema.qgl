@@ -66,6 +66,7 @@ type PlanetsUser {
 type Query {
   getNotifications: [Notification!]!
   getPlanet(planetUuid: String!): Planet!
+  getPlanetAuth(planetUuid: String!): Planet!
   getRequests: CombineRequest!
   getUser(userUuid: String!): User!
   getUsers: [User!]!

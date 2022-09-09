@@ -31,6 +31,12 @@ export class PlanetsResolver {
     return this.planetService.getPlanet(planetUuid);
   }
 
+  @Query(() => PlanetType)
+  @UseGuards(JwtAuthGuard)
+  getPlanetAuth(@Args('planetUuid') planetUuid: string, @GetUser() user: User) {
+    return this.planetService.getPlanetAuth(planetUuid, user);
+  }
+
   @Mutation(() => PlanetType)
   @UseGuards(JwtAuthGuard)
   createPlanet(@Args('planet') planet: PlanetInput, @GetUser() user: User) {
