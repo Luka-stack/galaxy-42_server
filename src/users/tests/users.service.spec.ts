@@ -106,7 +106,7 @@ describe('UsersService', () => {
     it('return user', async () => {
       userRepo.findOneBy.mockResolvedValue(mockUser);
 
-      const result = await usersService.findUserByUuid('id');
+      const result = await usersService.findUserByUsername('id');
 
       expect(result).toEqual(mockUser);
     });

@@ -26,6 +26,7 @@ type Mutation {
   register(user: RegisterInput!): User!
   requestsViewed(requestUuids: [String!]!): [Request!]!
   resolveRequest(rejected: Boolean!, requestUuid: String!): Request!
+  updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
   updateUser(userInput: UserInput!): User!
 }
@@ -68,11 +69,11 @@ type Query {
   getPlanet(planetUuid: String!): Planet!
   getPlanetAuth(planetUuid: String!): Planet!
   getRequests: CombineRequest!
-  getUser(userUuid: String!): User!
-  getUsers: [User!]!
+  getUser(username: String!): User!
   login(login: LoginInput!): User!
   me: User!
   planets: [Planet!]!
+  users: [User!]!
 }
 
 input RegisterInput {

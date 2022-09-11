@@ -30,10 +30,10 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ default: '' })
   bio: string;
 
-  @Column({ nullable: true })
+  @Column({ default: '' })
   topics: string;
 
   @Column({ nullable: true })
