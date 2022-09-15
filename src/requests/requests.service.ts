@@ -81,21 +81,23 @@ export class RequestsService {
     return this.requestRepo.save(request);
   }
 
+  // TODO add check for admin user
   async markAsSeen(requestUuids: string[], user: User) {
     const data = await this.requestRepo
       .createQueryBuilder()
       .update({ viewed: true })
-      .where({ uuid: In(requestUuids), userId: user.id })
+      .where({ uuid: In(requestUuids) })
       .returning('*')
       .execute();
 
     return data.raw;
   }
 
+  // TODO add check for admin user
   async resolveRequest(requestUuid: string, rejected: boolean, user: User) {
     const request = await this.requestRepo.findOne({
-      where: { uuid: requestUuid, userId: user.id },
-      relations: ['planet'],
+      where: { uuid: requestUuid },
+      relations: ['planet', 'user'],
     });
     if (!request) {
       throw new NotFoundException('Request not found');
@@ -103,19 +105,21 @@ export class RequestsService {
 
     if (!rejected) {
       this.usersPlanetsService.createRelation(
-        user,
+        request.user,
         request.planet,
         UserRole.USER,
       );
     }
 
+    this.requestRepo.remove(request);
+
     this.notificationsService.createNotification(
-      user,
+      request.user,
       request.planet,
       rejected,
     );
 
-    return this.requestRepo.remove(request);
+    return request.uuid;
   }
 
   getPlanetByUuid(planetId: number) {

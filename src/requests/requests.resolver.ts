@@ -43,7 +43,7 @@ export class RequestsResolver {
     return this.requestService.markAsSeen(requestUuids, user);
   }
 
-  @Mutation(() => RequestType)
+  @Mutation(() => String)
   @UseGuards(JwtAuthGuard)
   resolveRequest(
     @Args('requestUuid') requestUuid: string,

@@ -29,6 +29,7 @@ export class NotificationResolver {
     return this.notificationService.getNotifications(user);
   }
 
+  // TODO RETURN LIST OF DELETED NOTIFICATIONS
   @Mutation(() => [NotificationType])
   @UseGuards(JwtAuthGuard)
   deleteNotification(
@@ -42,6 +43,7 @@ export class NotificationResolver {
     );
   }
 
+  // TODO RETURN LIST OF MODIFIED NOTIFICATIONS
   @Mutation(() => [NotificationType])
   @UseGuards(JwtAuthGuard)
   notificationsViewed(

@@ -25,7 +25,7 @@ type Mutation {
   notificationsViewed(notificationUuids: [String!]!): [Notification!]!
   register(user: RegisterInput!): User!
   requestsViewed(requestUuids: [String!]!): [Request!]!
-  resolveRequest(rejected: Boolean!, requestUuid: String!): Request!
+  resolveRequest(rejected: Boolean!, requestUuid: String!): String!
   updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
   updateUser(userInput: UserInput!): User!
