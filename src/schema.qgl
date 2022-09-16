@@ -26,6 +26,7 @@ type Mutation {
   register(user: RegisterInput!): User!
   requestsViewed(requestUuids: [String!]!): [Request!]!
   resolveRequest(rejected: Boolean!, requestUuid: String!): String!
+  testSub: Boolean!
   updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
   updateUser(userInput: UserInput!): User!
@@ -94,6 +95,10 @@ type Request {
 input RequestInput {
   content: String
   planetUuid: String!
+}
+
+type Subscription {
+  notificationCreated: String!
 }
 
 input UpdatePlanetInput {

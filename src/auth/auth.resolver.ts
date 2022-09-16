@@ -20,7 +20,7 @@ export class AuthResolver {
       domain: 'localhost', // <- Change to your client domain
       secure: false, // <- Should be true if !development
       sameSite: 'strict',
-      httpOnly: true,
+      httpOnly: false,
       path: '/',
     });
 

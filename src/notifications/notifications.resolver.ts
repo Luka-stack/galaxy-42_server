@@ -5,6 +5,7 @@ import {
   Args,
   ResolveField,
   Parent,
+  Subscription,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
@@ -15,6 +16,10 @@ import { Notification } from './entities/notification.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../common/decorators/get-user.decorator';
+import { PubSub } from 'graphql-subscriptions';
+import { JwtSubGuard } from 'src/auth/guards/jwt-sub.guard';
+
+const pubSub = new PubSub();
 
 @Resolver(() => NotificationType)
 export class NotificationResolver {
@@ -52,6 +57,23 @@ export class NotificationResolver {
     @GetUser() user: User,
   ) {
     return this.notificationService.markAsSeen(notificationUuids, user);
+  }
+
+  @Subscription(() => String, {
+    resolve: (value) => value,
+  })
+  @UseGuards(JwtAuthGuard)
+  notificationCreated(@GetUser() user: User) {
+    console.log('User Subscribed', user.username);
+
+    return pubSub.asyncIterator('notificationCreated');
+  }
+
+  @Mutation(() => Boolean)
+  testSub() {
+    pubSub.publish('notificationCreated', 'Subscription Is Working');
+
+    return true;
   }
 
   @ResolveField()

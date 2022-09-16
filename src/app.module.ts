@@ -11,15 +11,16 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { getEnvPath } from './common/helpers/env.helper';
 import { UsersModule } from './users/users.module';
+import { Context } from 'graphql-ws';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       cache: true,
@@ -32,14 +33,51 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
       password: 'postgres',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      autoSchemaFile: join(process.cwd(), 'src/schema.qgl'),
-      sortSchema: true,
       driver: ApolloDriver,
+      playground: {
+        subscriptionEndpoint: 'ws://localhost:5000/graphql',
+      },
+      sortSchema: true,
+      autoSchemaFile: join(process.cwd(), 'src/schema.qgl'),
       cors: {
         origin: 'http://localhost:3000',
         credentials: true,
       },
-      context: ({ req, res }) => {
+      subscriptions: {
+        'graphql-ws': {
+          path: '/graphql',
+          onConnect: (context: Context<any>) => {
+            const { connectionParams, extra } = context;
+
+            if (!connectionParams.cookie) {
+              console.log('No cookies found');
+              return false;
+            }
+
+            const cookies = {};
+
+            connectionParams.cookie.split(';').forEach((cookie: string) => {
+              const [name, value] = cookie.split('=');
+              cookies[name] = value;
+            });
+
+            (extra as any).cookies = cookies;
+          },
+        },
+        'subscriptions-transport-ws': {
+          path: '/graphql',
+        },
+      },
+      context: ({ req, res, extra }) => {
+        if (extra?.request) {
+          return {
+            req: {
+              ...extra?.request,
+              cookies: extra?.cookies,
+            },
+          };
+        }
+
         return { req, res };
       },
     }),
