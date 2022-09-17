@@ -16,10 +16,6 @@ import { Notification } from './entities/notification.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/user.entity';
 import { GetUser } from '../common/decorators/get-user.decorator';
-import { PubSub } from 'graphql-subscriptions';
-import { JwtSubGuard } from 'src/auth/guards/jwt-sub.guard';
-
-const pubSub = new PubSub();
 
 @Resolver(() => NotificationType)
 export class NotificationResolver {
@@ -59,21 +55,20 @@ export class NotificationResolver {
     return this.notificationService.markAsSeen(notificationUuids, user);
   }
 
-  @Subscription(() => String, {
+  @Subscription(() => NotificationType, {
     resolve: (value) => value,
+    filter: (payload, _variables, context) => {
+      return payload.user.id === context.req.user.id;
+    },
   })
   @UseGuards(JwtAuthGuard)
-  notificationCreated(@GetUser() user: User) {
-    console.log('User Subscribed', user.username);
-
-    return pubSub.asyncIterator('notificationCreated');
+  notificationCreated() {
+    return this.notificationService.notificationCreatedSub();
   }
 
   @Mutation(() => Boolean)
   testSub() {
-    pubSub.publish('notificationCreated', 'Subscription Is Working');
-
-    return true;
+    return this.notificationService.sendTestNot();
   }
 
   @ResolveField()

@@ -98,7 +98,7 @@ input RequestInput {
 }
 
 type Subscription {
-  notificationCreated: String!
+  notificationCreated: Notification!
 }
 
 input UpdatePlanetInput {

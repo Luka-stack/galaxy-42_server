@@ -12,15 +12,16 @@ import { join } from 'path';
 import { getEnvPath } from './common/helpers/env.helper';
 import { UsersModule } from './users/users.module';
 import { Context } from 'graphql-ws';
+import { PubSubModule } from './pub-sub/pub-sub.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '..', 'public'),
-    // }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       cache: true,
@@ -50,7 +51,6 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
             const { connectionParams, extra } = context;
 
             if (!connectionParams.cookie) {
-              console.log('No cookies found');
               return false;
             }
 
@@ -86,6 +86,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
     PlanetsModule,
     RequestsModule,
     NotificationsModule,
+    PubSubModule,
   ],
 })
 export class AppModule {}
