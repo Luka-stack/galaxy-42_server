@@ -61,10 +61,4 @@ export class NotificationsService {
   notificationCreatedSub() {
     return this.pubSub.asyncIterator('notificationCreated');
   }
-
-  sendTestNot() {
-    this.pubSub.publish('notificationCreated', 'Subscription Is Working');
-
-    return true;
-  }
 }

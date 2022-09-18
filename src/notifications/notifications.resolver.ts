@@ -66,11 +66,6 @@ export class NotificationResolver {
     return this.notificationService.notificationCreatedSub();
   }
 
-  @Mutation(() => Boolean)
-  testSub() {
-    return this.notificationService.sendTestNot();
-  }
-
   @ResolveField()
   async planet(@Parent() notification: Notification) {
     return this.planetsService.getPlanetById(notification.planetId);

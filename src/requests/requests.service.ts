@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,9 +15,13 @@ import { UsersPlanetsService } from '../planets/services/users-planets.service';
 import { Request } from './entities/request.entity';
 import { RequestInput } from './inputes/request.input';
 import { User } from '../users/entities/user.entity';
+import { PubSub } from 'graphql-subscriptions';
 
 @Injectable()
 export class RequestsService {
+  @Inject('PUB_SUB')
+  private pubSub: PubSub;
+
   constructor(
     @InjectRepository(Request)
     private readonly requestRepo: Repository<Request>,
@@ -61,12 +66,28 @@ export class RequestsService {
       throw new NotFoundException('Planet not found');
     }
 
-    const asignUser = planet.users.find((u) => u.userId === user.id);
-    if (asignUser) {
+    let alreadyBelongs = false;
+    let adminUserId;
+
+    for (const u of planet.users) {
+      if (u.userId === user.id) {
+        alreadyBelongs = true;
+        continue;
+      }
+
+      if (u.role === UserRole.ADMIN) {
+        adminUserId = u.userId;
+      }
+    }
+
+    if (alreadyBelongs) {
       throw new BadRequestException('User already belongs to this planet');
     }
 
-    const usersReq = await this.requestRepo.findOneBy({ userId: user.id });
+    const usersReq = await this.requestRepo.findOneBy({
+      userId: user.id,
+      planetId: planet.id,
+    });
     if (usersReq) {
       throw new UserInputError('You already have sent this request');
     }
@@ -78,7 +99,13 @@ export class RequestsService {
       content: requestInput.content,
     });
 
-    return this.requestRepo.save(request);
+    const savedEntity = await this.requestRepo.save(request);
+    this.pubSub.publish('requestCreated', {
+      request: savedEntity,
+      admin: adminUserId,
+    });
+
+    return savedEntity;
   }
 
   // TODO add check for admin user
@@ -120,6 +147,10 @@ export class RequestsService {
     );
 
     return request.uuid;
+  }
+
+  requestCreatedSub() {
+    return this.pubSub.asyncIterator('requestCreated');
   }
 
   getPlanetByUuid(planetId: number) {
