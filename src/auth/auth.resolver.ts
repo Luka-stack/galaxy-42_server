@@ -1,4 +1,4 @@
-import { Args, Context, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
 import { LoginInput } from './inputs/login.input';
@@ -25,6 +25,22 @@ export class AuthResolver {
     });
 
     return user;
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Context() context: any) {
+    try {
+      context.res.clearCookie('auth-cookie', {
+        domain: 'localhost', // <- Change to your client domain
+        secure: false, // <- Should be true if !development
+        sameSite: 'strict',
+        httpOnly: false,
+        path: '/',
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   @Query(() => UserType)
