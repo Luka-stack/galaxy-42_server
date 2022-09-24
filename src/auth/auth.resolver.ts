@@ -17,8 +17,8 @@ export class AuthResolver {
     const { accessToken, user } = await this.authService.login(login.email);
 
     context.res.cookie('auth-cookie', accessToken, {
-      domain: 'localhost', // <- Change to your client domain
-      secure: false, // <- Should be true if !development
+      domain: 'localhost',
+      secure: false,
       sameSite: 'strict',
       httpOnly: false,
       path: '/',
@@ -31,8 +31,8 @@ export class AuthResolver {
   async logout(@Context() context: any) {
     try {
       context.res.clearCookie('auth-cookie', {
-        domain: 'localhost', // <- Change to your client domain
-        secure: false, // <- Should be true if !development
+        domain: 'localhost',
+        secure: false,
         sameSite: 'strict',
         httpOnly: false,
         path: '/',

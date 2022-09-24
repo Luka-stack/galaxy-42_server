@@ -32,10 +32,10 @@ export class NotificationsService {
       userId: user.id,
     });
 
-    return this.notificationRepo.remove(notifications);
+    return notifications.map((n) => n.uuid);
   }
 
-  async markAsSeen(notificationUuids: string[], user) {
+  async markAsSeen(notificationUuids: string[], user: User) {
     const data = await this.notificationRepo
       .createQueryBuilder()
       .update({ viewed: true })
@@ -43,7 +43,7 @@ export class NotificationsService {
       .returning('*')
       .execute();
 
-    return data.raw;
+    return data.raw.map((n) => n.uuid);
   }
 
   async createNotification(user: User, planet: Planet, rejected: boolean) {

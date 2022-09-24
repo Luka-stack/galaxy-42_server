@@ -24,13 +24,13 @@ input LoginInput {
 
 type Mutation {
   createPlanet(planet: PlanetInput!): Planet!
-  createRequest(request: RequestInput!): Request!
-  deleteNotification(notificationUuids: [String!]!): [Notification!]!
+  createRequest(request: RequestInput!): Boolean!
+  deleteNotification(notificationUuids: [String!]!): [String!]!
   deletePlanet(planetUuid: String!): Boolean!
   logout: Boolean!
-  notificationsViewed(notificationUuids: [String!]!): [Notification!]!
+  notificationsViewed(notificationUuids: [String!]!): [String!]!
   register(user: RegisterInput!): User!
-  requestsViewed(requestUuids: [String!]!): [Request!]!
+  requestsViewed(requestUuids: [String!]!): [String!]!
   resolveRequest(rejected: Boolean!, requestUuid: String!): String!
   updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
@@ -47,6 +47,7 @@ type Notification {
 
 type Planet {
   bio: String!
+  createdAt: Float!
   imageUrl: String!
   isPublic: Boolean!
   name: String!
@@ -79,7 +80,13 @@ type Query {
   login(login: LoginInput!): User!
   me: User!
   planets: [Planet!]!
+  queryPlanets(query: QueryPlanetInput!): [Planet!]!
   users: [User!]!
+}
+
+input QueryPlanetInput {
+  limit: Float
+  order: String!
 }
 
 input RegisterInput {
@@ -120,6 +127,7 @@ scalar Upload
 
 type User {
   bio: String
+  createdAt: Float!
   email: String!
   imageUrl: String!
   planets: [UsersPlanet!]!

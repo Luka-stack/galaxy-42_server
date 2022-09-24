@@ -1,6 +1,7 @@
 import { UsersPlanets } from '../../planets/entities/users-planets.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Generated,
   Index,
@@ -38,6 +39,9 @@ export class User {
 
   @Column({ nullable: true })
   imageUrn: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.user)
   planets: UsersPlanets[];

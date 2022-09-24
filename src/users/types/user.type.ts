@@ -22,6 +22,9 @@ export class UserType {
   @Field()
   imageUrl: string;
 
+  @Field()
+  createdAt: number;
+
   @Field(() => [UsersPlanetType])
   planets: UsersPlanets[];
 }

@@ -1,6 +1,7 @@
 import { Expose } from 'class-transformer';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Generated,
   Index,
@@ -37,6 +38,9 @@ export class Planet {
 
   @Column({ nullable: true })
   imageUrn: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.planet)
   users: UsersPlanets[];

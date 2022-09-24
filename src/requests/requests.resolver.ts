@@ -29,13 +29,13 @@ export class RequestsResolver {
     return this.requestService.getRequests(user);
   }
 
-  @Mutation(() => RequestType)
+  @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   createRequest(@Args('request') request: RequestInput, @GetUser() user: User) {
     return this.requestService.createRequest(request, user);
   }
 
-  @Mutation(() => [RequestType])
+  @Mutation(() => [String])
   @UseGuards(JwtAuthGuard)
   requestsViewed(
     @Args({ name: 'requestUuids', type: () => [String] })

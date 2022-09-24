@@ -63,7 +63,7 @@ export class RequestsService {
       relations: ['users'],
     });
     if (!planet) {
-      throw new NotFoundException('Planet not found');
+      return new NotFoundException('Planet not found');
     }
 
     let alreadyBelongs = false;
@@ -81,7 +81,7 @@ export class RequestsService {
     }
 
     if (alreadyBelongs) {
-      throw new BadRequestException('User already belongs to this planet');
+      return new BadRequestException('User already belongs to this planet');
     }
 
     const usersReq = await this.requestRepo.findOneBy({
@@ -89,7 +89,7 @@ export class RequestsService {
       planetId: planet.id,
     });
     if (usersReq) {
-      throw new UserInputError('You already have sent this request');
+      return new UserInputError('You already have sent this request');
     }
 
     const request = this.requestRepo.create({
@@ -105,29 +105,35 @@ export class RequestsService {
       admin: adminUserId,
     });
 
-    return savedEntity;
+    return true;
   }
 
-  // TODO add check for admin user
   async markAsSeen(requestUuids: string[], user: User) {
-    const data = await this.requestRepo
+    const planets = user.planets
+      .filter((p) => p.role === UserRole.ADMIN)
+      .map((p) => p.planetId);
+
+    const requests = await this.requestRepo
       .createQueryBuilder()
-      .update({ viewed: true })
-      .where({ uuid: In(requestUuids) })
-      .returning('*')
+      .update({ viewed: false })
+      .where({ uuid: In(requestUuids), planetId: In(planets) })
+      .returning('uuid')
       .execute();
 
-    return data.raw;
+    return requests.raw.map((r) => r.uuid);
   }
 
-  // TODO add check for admin user
   async resolveRequest(requestUuid: string, rejected: boolean, user: User) {
+    const planets = user.planets
+      .filter((p) => p.role === UserRole.ADMIN)
+      .map((p) => p.planetId);
+
     const request = await this.requestRepo.findOne({
-      where: { uuid: requestUuid },
+      where: { uuid: requestUuid, planetId: In(planets) },
       relations: ['planet', 'user'],
     });
     if (!request) {
-      throw new NotFoundException('Request not found');
+      return new NotFoundException('Request not found');
     }
 
     if (!rejected) {
@@ -146,7 +152,7 @@ export class RequestsService {
       rejected,
     );
 
-    return request.uuid;
+    return requestUuid;
   }
 
   requestCreatedSub() {

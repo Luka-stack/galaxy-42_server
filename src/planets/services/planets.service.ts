@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ForbiddenError, UserInputError } from 'apollo-server-express';
+import { UserInputError } from 'apollo-server-express';
 import { createWriteStream, unlinkSync } from 'fs';
 import { randomUUID } from 'crypto';
 
@@ -15,6 +15,7 @@ import { UserRole } from '../entities/user-role';
 import { UpdatePlanetInput } from '../inputs/update-planet.input';
 import { UsersPlanetsService } from './users-planets.service';
 import { User } from '../../users/entities/user.entity';
+import { QueryPlanetInput } from '../inputs/query-planet.input';
 
 @Injectable()
 export class PlanetsService {
@@ -23,8 +24,42 @@ export class PlanetsService {
     private readonly usersPlanetsService: UsersPlanetsService,
   ) {}
 
-  async getPlanets(): Promise<Planet[]> {
+  getPlanets(): Promise<Planet[]> {
     return this.planetRepo.find();
+  }
+
+  queryPlanets(query: QueryPlanetInput): Promise<Planet[]> {
+    const constrains: any = {};
+
+    if (query.limit) {
+      constrains.take = query.limit;
+    }
+
+    if (query.order) {
+      constrains.order = {
+        createdAt: 'DESC',
+      };
+    }
+
+    console.log(constrains);
+
+    return this.planetRepo.find(constrains);
+  }
+
+  getLatestsPlanets(order?: string, limit?: number) {
+    const constrains: any = {};
+
+    if (limit) {
+      constrains.limit = limit;
+    }
+
+    if (order) {
+      constrains.order = {
+        createdAt: 'DESC',
+      };
+    }
+
+    return this.planetRepo.find(constrains);
   }
 
   async getPlanet(planetUuid: string): Promise<Planet> {
