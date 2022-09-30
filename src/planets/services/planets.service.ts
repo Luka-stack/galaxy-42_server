@@ -41,8 +41,6 @@ export class PlanetsService {
       };
     }
 
-    console.log(constrains);
-
     return this.planetRepo.find(constrains);
   }
 
