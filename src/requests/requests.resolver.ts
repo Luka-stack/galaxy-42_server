@@ -5,6 +5,7 @@ import {
   Query,
   ResolveField,
   Resolver,
+  Subscription,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
@@ -16,6 +17,7 @@ import { GetUser } from '../common/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CombineRequestType } from './types/combine-request.type';
+import { CreatedRequestType } from './types/created-request.type';
 
 @Resolver(() => RequestType)
 export class RequestsResolver {
@@ -27,13 +29,13 @@ export class RequestsResolver {
     return this.requestService.getRequests(user);
   }
 
-  @Mutation(() => RequestType)
+  @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   createRequest(@Args('request') request: RequestInput, @GetUser() user: User) {
     return this.requestService.createRequest(request, user);
   }
 
-  @Mutation(() => [RequestType])
+  @Mutation(() => [String])
   @UseGuards(JwtAuthGuard)
   requestsViewed(
     @Args({ name: 'requestUuids', type: () => [String] })
@@ -43,7 +45,7 @@ export class RequestsResolver {
     return this.requestService.markAsSeen(requestUuids, user);
   }
 
-  @Mutation(() => RequestType)
+  @Mutation(() => String)
   @UseGuards(JwtAuthGuard)
   resolveRequest(
     @Args('requestUuid') requestUuid: string,
@@ -51,6 +53,25 @@ export class RequestsResolver {
     @GetUser() user: User,
   ) {
     return this.requestService.resolveRequest(requestUuid, rejected, user);
+  }
+
+  @Subscription(() => CreatedRequestType, {
+    resolve: (payload, _args, context) => {
+      return {
+        type: payload.admin === context.req.user.id ? 'planets' : 'users',
+        request: payload.request,
+      };
+    },
+    filter: (payload, _variables, context) => {
+      return (
+        payload.admin === context.req.user.id ||
+        payload.request.userId === context.req.user.id
+      );
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  requestCreated() {
+    return this.requestService.requestCreatedSub();
   }
 
   @ResolveField()

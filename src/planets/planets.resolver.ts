@@ -13,6 +13,7 @@ import { GetUser } from '../common/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { Planet } from './entities/planet.entity';
 import { PlanetInput } from './inputs/planet.input';
+import { QueryPlanetInput } from './inputs/query-planet.input';
 import { UpdatePlanetInput } from './inputs/update-planet.input';
 import { PlanetsService } from './services/planets.service';
 import { PlanetType } from './types/planet.type';
@@ -24,6 +25,25 @@ export class PlanetsResolver {
   @Query(() => [PlanetType])
   planets() {
     return this.planetService.getPlanets();
+  }
+
+  @Query(() => [PlanetType])
+  queryPlanets(
+    @Args('query')
+    query: QueryPlanetInput,
+  ) {
+    return this.planetService.queryPlanets(query);
+  }
+
+  @Query(() => PlanetType)
+  getPlanet(@Args('planetUuid') planetUuid: string) {
+    return this.planetService.getPlanet(planetUuid);
+  }
+
+  @Query(() => PlanetType)
+  @UseGuards(JwtAuthGuard)
+  getPlanetAuth(@Args('planetUuid') planetUuid: string, @GetUser() user: User) {
+    return this.planetService.getPlanetAuth(planetUuid, user);
   }
 
   @Mutation(() => PlanetType)

@@ -25,21 +25,28 @@ export class UsersResolver {
   }
 
   @Query(() => [UserType])
-  getUsers() {
+  users() {
     return this.userService.getUsers();
   }
 
   @Query(() => UserType)
-  getUser(@Args('userUuid') userUuid: string) {
-    return this.userService.findUserByUuid(userUuid);
+  getUser(@Args('username') username: string) {
+    return this.userService.findUserByUsername(username);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  updatePassword(
+    @Args('old') oldPassword: string,
+    @Args('new') newPassword: string,
+    @GetUser() user: User,
+  ) {
+    return this.userService.updatePassword(user, oldPassword, newPassword);
   }
 
   @Mutation(() => UserType)
   @UseGuards(JwtAuthGuard)
-  async updateUser(
-    @Args('userInput') userInput: UserInput,
-    @GetUser() user: User,
-  ) {
+  updateUser(@Args('userInput') userInput: UserInput, @GetUser() user: User) {
     return this.userService.updateUser(user, userInput);
   }
 

@@ -5,6 +5,7 @@ import {
   Args,
   ResolveField,
   Parent,
+  Subscription,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
@@ -29,7 +30,7 @@ export class NotificationResolver {
     return this.notificationService.getNotifications(user);
   }
 
-  @Mutation(() => [NotificationType])
+  @Mutation(() => [String])
   @UseGuards(JwtAuthGuard)
   deleteNotification(
     @Args({ name: 'notificationUuids', type: () => [String] })
@@ -42,7 +43,7 @@ export class NotificationResolver {
     );
   }
 
-  @Mutation(() => [NotificationType])
+  @Mutation(() => [String])
   @UseGuards(JwtAuthGuard)
   notificationsViewed(
     @Args({ name: 'notificationUuids', type: () => [String] })
@@ -50,6 +51,17 @@ export class NotificationResolver {
     @GetUser() user: User,
   ) {
     return this.notificationService.markAsSeen(notificationUuids, user);
+  }
+
+  @Subscription(() => NotificationType, {
+    resolve: (value) => value,
+    filter: (payload, _variables, context) => {
+      return payload.user.id === context.req.user.id;
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  notificationCreated() {
+    return this.notificationService.notificationCreatedSub();
   }
 
   @ResolveField()

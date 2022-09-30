@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,9 +15,13 @@ import { UsersPlanetsService } from '../planets/services/users-planets.service';
 import { Request } from './entities/request.entity';
 import { RequestInput } from './inputes/request.input';
 import { User } from '../users/entities/user.entity';
+import { PubSub } from 'graphql-subscriptions';
 
 @Injectable()
 export class RequestsService {
+  @Inject('PUB_SUB')
+  private pubSub: PubSub;
+
   constructor(
     @InjectRepository(Request)
     private readonly requestRepo: Repository<Request>,
@@ -58,17 +63,33 @@ export class RequestsService {
       relations: ['users'],
     });
     if (!planet) {
-      throw new NotFoundException('Planet not found');
+      return new NotFoundException('Planet not found');
     }
 
-    const asignUser = planet.users.find((u) => u.userId === user.id);
-    if (asignUser) {
-      throw new BadRequestException('User already belongs to this planet');
+    let alreadyBelongs = false;
+    let adminUserId;
+
+    for (const u of planet.users) {
+      if (u.userId === user.id) {
+        alreadyBelongs = true;
+        continue;
+      }
+
+      if (u.role === UserRole.ADMIN) {
+        adminUserId = u.userId;
+      }
     }
 
-    const usersReq = await this.requestRepo.findOneBy({ userId: user.id });
+    if (alreadyBelongs) {
+      return new BadRequestException('User already belongs to this planet');
+    }
+
+    const usersReq = await this.requestRepo.findOneBy({
+      userId: user.id,
+      planetId: planet.id,
+    });
     if (usersReq) {
-      throw new UserInputError('You already have sent this request');
+      return new UserInputError('You already have sent this request');
     }
 
     const request = this.requestRepo.create({
@@ -78,44 +99,64 @@ export class RequestsService {
       content: requestInput.content,
     });
 
-    return this.requestRepo.save(request);
+    const savedEntity = await this.requestRepo.save(request);
+    this.pubSub.publish('requestCreated', {
+      request: savedEntity,
+      admin: adminUserId,
+    });
+
+    return true;
   }
 
   async markAsSeen(requestUuids: string[], user: User) {
-    const data = await this.requestRepo
+    const planets = user.planets
+      .filter((p) => p.role === UserRole.ADMIN)
+      .map((p) => p.planetId);
+
+    const requests = await this.requestRepo
       .createQueryBuilder()
-      .update({ viewed: true })
-      .where({ uuid: In(requestUuids), userId: user.id })
-      .returning('*')
+      .update({ viewed: false })
+      .where({ uuid: In(requestUuids), planetId: In(planets) })
+      .returning('uuid')
       .execute();
 
-    return data.raw;
+    return requests.raw.map((r) => r.uuid);
   }
 
   async resolveRequest(requestUuid: string, rejected: boolean, user: User) {
+    const planets = user.planets
+      .filter((p) => p.role === UserRole.ADMIN)
+      .map((p) => p.planetId);
+
     const request = await this.requestRepo.findOne({
-      where: { uuid: requestUuid, userId: user.id },
-      relations: ['planet'],
+      where: { uuid: requestUuid, planetId: In(planets) },
+      relations: ['planet', 'user'],
     });
     if (!request) {
-      throw new NotFoundException('Request not found');
+      return new NotFoundException('Request not found');
     }
 
     if (!rejected) {
       this.usersPlanetsService.createRelation(
-        user,
+        request.user,
         request.planet,
         UserRole.USER,
       );
     }
 
+    this.requestRepo.remove(request);
+
     this.notificationsService.createNotification(
-      user,
+      request.user,
       request.planet,
       rejected,
     );
 
-    return this.requestRepo.remove(request);
+    return requestUuid;
+  }
+
+  requestCreatedSub() {
+    return this.pubSub.asyncIterator('requestCreated');
   }
 
   getPlanetByUuid(planetId: number) {

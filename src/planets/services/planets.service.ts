@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserInputError } from 'apollo-server-express';
@@ -11,6 +15,7 @@ import { UserRole } from '../entities/user-role';
 import { UpdatePlanetInput } from '../inputs/update-planet.input';
 import { UsersPlanetsService } from './users-planets.service';
 import { User } from '../../users/entities/user.entity';
+import { QueryPlanetInput } from '../inputs/query-planet.input';
 
 @Injectable()
 export class PlanetsService {
@@ -19,8 +24,65 @@ export class PlanetsService {
     private readonly usersPlanetsService: UsersPlanetsService,
   ) {}
 
-  async getPlanets(): Promise<Planet[]> {
+  getPlanets(): Promise<Planet[]> {
     return this.planetRepo.find();
+  }
+
+  queryPlanets(query: QueryPlanetInput): Promise<Planet[]> {
+    const constrains: any = {};
+
+    if (query.limit) {
+      constrains.take = query.limit;
+    }
+
+    if (query.order) {
+      constrains.order = {
+        createdAt: 'DESC',
+      };
+    }
+
+    return this.planetRepo.find(constrains);
+  }
+
+  getLatestsPlanets(order?: string, limit?: number) {
+    const constrains: any = {};
+
+    if (limit) {
+      constrains.limit = limit;
+    }
+
+    if (order) {
+      constrains.order = {
+        createdAt: 'DESC',
+      };
+    }
+
+    return this.planetRepo.find(constrains);
+  }
+
+  async getPlanet(planetUuid: string): Promise<Planet> {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
+    if (!planet) {
+      throw new UserInputError('Planet not found');
+    }
+    return planet;
+  }
+
+  async getPlanetAuth(planetUuid: string, user: User): Promise<Planet> {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
+    if (!planet) {
+      throw new UserInputError('Planet not found');
+    }
+
+    const isAdmin = user.planets.some(
+      (p) => p.planetId === planet.id && p.role === 'ADMIN',
+    );
+
+    if (!isAdmin) {
+      throw new ForbiddenException();
+    }
+
+    return planet;
   }
 
   async createPlanet(user: User, planetInput: PlanetInput): Promise<Planet> {

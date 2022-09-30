@@ -7,6 +7,11 @@ type CombineRequest {
   users: [Request!]!
 }
 
+type CreatedRequest {
+  request: Request!
+  type: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -19,13 +24,15 @@ input LoginInput {
 
 type Mutation {
   createPlanet(planet: PlanetInput!): Planet!
-  createRequest(request: RequestInput!): Request!
-  deleteNotification(notificationUuids: [String!]!): [Notification!]!
+  createRequest(request: RequestInput!): Boolean!
+  deleteNotification(notificationUuids: [String!]!): [String!]!
   deletePlanet(planetUuid: String!): Boolean!
-  notificationsViewed(notificationUuids: [String!]!): [Notification!]!
+  logout: Boolean!
+  notificationsViewed(notificationUuids: [String!]!): [String!]!
   register(user: RegisterInput!): User!
-  requestsViewed(requestUuids: [String!]!): [Request!]!
-  resolveRequest(rejected: Boolean!, requestUuid: String!): Request!
+  requestsViewed(requestUuids: [String!]!): [String!]!
+  resolveRequest(rejected: Boolean!, requestUuid: String!): String!
+  updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
   updateUser(userInput: UserInput!): User!
 }
@@ -40,6 +47,7 @@ type Notification {
 
 type Planet {
   bio: String!
+  createdAt: Float!
   imageUrl: String!
   isPublic: Boolean!
   name: String!
@@ -65,12 +73,20 @@ type PlanetsUser {
 
 type Query {
   getNotifications: [Notification!]!
+  getPlanet(planetUuid: String!): Planet!
+  getPlanetAuth(planetUuid: String!): Planet!
   getRequests: CombineRequest!
-  getUser(userUuid: String!): User!
-  getUsers: [User!]!
+  getUser(username: String!): User!
   login(login: LoginInput!): User!
   me: User!
   planets: [Planet!]!
+  queryPlanets(query: QueryPlanetInput!): [Planet!]!
+  users: [User!]!
+}
+
+input QueryPlanetInput {
+  limit: Float
+  order: String!
 }
 
 input RegisterInput {
@@ -93,6 +109,11 @@ input RequestInput {
   planetUuid: String!
 }
 
+type Subscription {
+  notificationCreated: Notification!
+  requestCreated: CreatedRequest!
+}
+
 input UpdatePlanetInput {
   bio: String
   image: Upload
@@ -106,6 +127,7 @@ scalar Upload
 
 type User {
   bio: String
+  createdAt: Float!
   email: String!
   imageUrl: String!
   planets: [UsersPlanet!]!

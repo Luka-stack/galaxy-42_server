@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersPlanets } from '../planets/entities/users-planets.entity';
 import { Repository } from 'typeorm';
@@ -109,8 +109,27 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  findUserByUuid(userUuid: string): Promise<User | null> {
-    return this.userRepo.findOneBy({ uuid: userUuid });
+  async updatePassword(user: User, oldPassword: string, newPassword: string) {
+    const correctPassword = await bcrypt.compare(oldPassword, user.password);
+
+    if (!correctPassword) {
+      throw new UserInputError('Wrong password');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 6);
+    // this.userRepo.save(user);
+
+    return true;
+  }
+
+  async findUserByUsername(username: string): Promise<User> {
+    const user = this.userRepo.findOneBy({ username });
+
+    if (!user) {
+      throw new UserInputError('User not found');
+    }
+
+    return user;
   }
 
   findUserByEmail(email: string): Promise<User | null> {
