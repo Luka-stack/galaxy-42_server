@@ -16,8 +16,6 @@ import { PubSubModule } from './pub-sub/pub-sub.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
-// TODO EXPORT CONTANTS
-
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
@@ -52,11 +50,18 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
           onConnect: (context: Context<any>) => {
             const { connectionParams, extra } = context;
 
-            if (!connectionParams.headers) {
+            if (!connectionParams.cookie) {
               return false;
             }
 
-            (extra as any).headers = connectionParams.headers;
+            const cookies = {};
+
+            connectionParams.cookie.split(';').forEach((cookie: string) => {
+              const [name, value] = cookie.split('=');
+              cookies[name] = value;
+            });
+
+            (extra as any).cookies = cookies;
           },
         },
         'subscriptions-transport-ws': {
@@ -68,10 +73,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
           return {
             req: {
               ...extra?.request,
-              headers: {
-                ...extra?.request.headers,
-                ...extra?.headers,
-              },
+              cookies: extra?.cookies,
             },
           };
         }

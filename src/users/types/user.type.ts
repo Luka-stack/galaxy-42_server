@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { UsersPlanets } from 'src/planets/entities/users-planets.entity';
+
+import { UsersPlanets } from '../../planets/entities/users-planets.entity';
 import { UsersPlanetType } from './users-planet.type';
 
 @ObjectType('User')
