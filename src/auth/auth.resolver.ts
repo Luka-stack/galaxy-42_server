@@ -24,8 +24,6 @@ export class AuthResolver {
       login.email,
     );
 
-    console.log('Access:', accessToken, 'refresh:', refreshToken);
-
     context.res.cookie(this.config.get('REFRESH_TOKEN'), refreshToken, {
       domain: 'localhost',
       secure: false,
@@ -71,8 +69,6 @@ export class AuthResolver {
       httpOnly: true,
       path: '/',
     });
-
-    console.log('Access:', accessToken, 'refresh:', refreshToken);
 
     return { accessToken };
   }

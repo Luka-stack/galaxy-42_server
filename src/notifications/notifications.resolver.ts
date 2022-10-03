@@ -61,8 +61,6 @@ export class NotificationResolver {
   })
   @UseGuards(JwtAuthGuard)
   notificationCreated() {
-    console.log('Subscribed to notification');
-
     return this.notificationService.notificationCreatedSub();
   }
 
