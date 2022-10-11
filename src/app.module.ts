@@ -13,6 +13,8 @@ import { getEnvPath } from './common/helpers/env.helper';
 import { UsersModule } from './users/users.module';
 import { Context } from 'graphql-ws';
 import { PubSubModule } from './pub-sub/pub-sub.module';
+import { MessagesModule } from './messages/messages.module';
+import { GroupsModule } from './groups/groups.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
@@ -85,6 +87,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
     RequestsModule,
     NotificationsModule,
     PubSubModule,
+    MessagesModule,
+    GroupsModule,
   ],
 })
 export class AppModule {}

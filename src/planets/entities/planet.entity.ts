@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { Group } from 'src/groups/entities/group.entity';
 import {
   Column,
   CreateDateColumn,
@@ -44,6 +45,9 @@ export class Planet {
 
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.planet)
   users: UsersPlanets[];
+
+  @OneToMany(() => Group, (group) => group.planet)
+  groups: Group[];
 
   @Expose()
   get imageUrl(): string {

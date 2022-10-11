@@ -1,4 +1,6 @@
 import { ID, Field, ObjectType } from '@nestjs/graphql';
+
+import { Group } from '../../groups/entities/group.entity';
 import { UsersPlanets } from '../entities/users-planets.entity';
 import { PlanetsUserType } from './planets-user.type';
 
@@ -30,4 +32,7 @@ export class PlanetType {
 
   @Field((type) => [PlanetsUserType])
   users: UsersPlanets[];
+
+  @Field((type) => [Group])
+  groups: Group[];
 }
