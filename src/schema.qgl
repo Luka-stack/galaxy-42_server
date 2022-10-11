@@ -22,11 +22,16 @@ input LoginInput {
   password: String!
 }
 
+type LoginResponseType {
+  accessToken: String!
+}
+
 type Mutation {
   createPlanet(planet: PlanetInput!): Planet!
   createRequest(request: RequestInput!): Boolean!
   deleteNotification(notificationUuids: [String!]!): [String!]!
   deletePlanet(planetUuid: String!): Boolean!
+  login(login: LoginInput!): LoginResponseType!
   logout: Boolean!
   notificationsViewed(notificationUuids: [String!]!): [String!]!
   register(user: RegisterInput!): User!
@@ -77,10 +82,10 @@ type Query {
   getPlanetAuth(planetUuid: String!): Planet!
   getRequests: CombineRequest!
   getUser(username: String!): User!
-  login(login: LoginInput!): User!
   me: User!
   planets: [Planet!]!
   queryPlanets(query: QueryPlanetInput!): [Planet!]!
+  refreshToken: LoginResponseType!
   users: [User!]!
 }
 
