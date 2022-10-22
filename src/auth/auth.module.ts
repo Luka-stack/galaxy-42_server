@@ -18,7 +18,8 @@ import { JwtCookieStrategy } from './strategies/jwt-cookie.strategy';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: '15m',
+          // expiresIn: '15m',
+          expiresIn: '1h',
         },
       }),
     }),

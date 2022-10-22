@@ -11,20 +11,22 @@ export class UsersPlanetsService {
     private readonly repo: Repository<UsersPlanets>,
   ) {}
 
-  createRelation(
-    user: User,
-    planet: Planet,
-    role: UserRole,
-  ): Promise<UsersPlanets> {
-    const relation = this.repo.create({
+  createRelation(user: User, planet: Planet, role: UserRole) {
+    return this.repo.create({
       userId: user.id,
       planetId: planet.id,
       user,
       planet,
       role,
     });
+  }
 
-    return this.repo.save(relation);
+  saveRelation(
+    user: User,
+    planet: Planet,
+    role: UserRole,
+  ): Promise<UsersPlanets> {
+    return this.repo.save(this.createRelation(user, planet, role));
   }
 
   async getPlanetsUser(planet: Planet) {

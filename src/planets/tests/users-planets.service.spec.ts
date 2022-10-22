@@ -61,11 +61,7 @@ describe('UsersPlanetsService', () => {
 
       const role = UserRole.ADMIN;
 
-      const result = await usersPlanetsService.createRelation(
-        user,
-        planet,
-        role,
-      );
+      const result = await usersPlanetsService.saveRelation(user, planet, role);
 
       expect(result.role).toEqual(role);
       expect(result.userId).toEqual(user.id);

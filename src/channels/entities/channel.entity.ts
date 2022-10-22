@@ -2,14 +2,15 @@ import {
   Column,
   Entity,
   Generated,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { Planet } from '../../planets/entities/planet.entity';
 
-@Entity('groups')
-export class Group {
+@Entity('channels')
+export class Channel {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -17,8 +18,12 @@ export class Group {
   @Column()
   uuid: string;
 
+  @Index({ unique: true })
   @Column()
   name: string;
+
+  @Column()
+  planetId: number;
 
   @ManyToOne(() => Planet, { onDelete: 'CASCADE' })
   planet: Planet;

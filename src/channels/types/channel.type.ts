@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-@ObjectType('Group')
-export class GroupType {
+@ObjectType('Channel')
+export class ChannelType {
   @Field(() => ID)
   uuid: string;
 

@@ -6,11 +6,14 @@ export class MessageInput {
   @Field()
   content: string;
 
+  @Field()
+  planetId: string;
+
   @IsOptional()
   @Field({ nullable: true })
   to: string;
 
   @IsOptional()
   @Field({ nullable: true })
-  group: string;
+  channel: string;
 }

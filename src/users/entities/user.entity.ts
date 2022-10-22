@@ -17,6 +17,7 @@ export class User {
   id: number;
 
   @Generated('uuid')
+  @Index({ unique: true })
   @Column()
   uuid: string;
 

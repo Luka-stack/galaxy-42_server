@@ -137,7 +137,7 @@ export class RequestsService {
     }
 
     if (!rejected) {
-      this.usersPlanetsService.createRelation(
+      this.usersPlanetsService.saveRelation(
         request.user,
         request.planet,
         UserRole.USER,

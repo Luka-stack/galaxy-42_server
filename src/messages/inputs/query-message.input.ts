@@ -9,5 +9,5 @@ export class QueryMessageInput {
 
   @IsOptional()
   @Field({ nullable: true })
-  group: string;
+  channel: string;
 }
