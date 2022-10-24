@@ -32,7 +32,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
       autoLoadEntities: true,
       synchronize: true,
       host: 'localhost',
-      port: 4321,
+      port: 5432,
       database: 'galaxy_42',
       username: 'postgres',
       password: 'postgres',
