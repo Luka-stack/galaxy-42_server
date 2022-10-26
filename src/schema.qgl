@@ -40,14 +40,13 @@ type Message {
   author: User!
   content: String!
   createdAt: DateTime!
+  recipient: String!
   uuid: ID!
 }
 
 input MessageInput {
-  channel: String
   content: String!
-  planetId: String!
-  to: String
+  recipient: String!
 }
 
 type Mutation {
@@ -104,7 +103,7 @@ type PlanetsUser {
 }
 
 type Query {
-  getMessages: [Message!]!
+  getMessages(recipients: [String!]!): [Message!]!
   getMyPlanets: [Planet!]!
   getNotifications: [Notification!]!
   getPlanet(planetUuid: String!): Planet!

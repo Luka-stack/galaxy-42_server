@@ -7,6 +7,9 @@ export class MessageType {
   @Field(() => ID)
   uuid: string;
 
+  @Field()
+  recipient: string;
+
   @Field(() => UserType)
   author: User;
 

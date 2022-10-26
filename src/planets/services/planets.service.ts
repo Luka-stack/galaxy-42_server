@@ -108,7 +108,6 @@ export class PlanetsService {
     const newPlanet = this.planetRepo.create(planetInput);
 
     if (planetInput.image) {
-      // upload new
       const { createReadStream, filename } = await planetInput.image;
       const randomName = randomUUID() + filename;
       newPlanet.imageUrn = randomName;
@@ -142,6 +141,8 @@ export class PlanetsService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      console.log(err);
+
       throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -7,7 +7,6 @@ import { GetUser } from '../common/decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { Message } from './entities/message.entity';
 import { MessageInput } from './inputs/message.input';
-import { QueryMessageInput } from './inputs/query-message.input';
 
 @Injectable()
 export class MessagesService {
@@ -22,62 +21,15 @@ export class MessagesService {
 
   // TODO add subs
   async sendMessage(message: MessageInput, @GetUser() user: User) {
-    let toUser: User | null;
-    let channel: Channel | null;
-
-    if (message.to) {
-      toUser = await this.userRepo.findOne({
-        where: { uuid: message.to },
-      });
-
-      if (!toUser) {
-        return new BadRequestException('User not found');
-      }
-    } else if (message.channel) {
-      channel = await this.channelRepo.findOne({
-        relations: {
-          planet: true,
-        },
-        where: {
-          name: message.channel,
-          planet: {
-            uuid: message.planetId,
-          },
-        },
-      });
-
-      if (!channel) {
-        return new BadRequestException('Channel not found');
-      }
-    }
-
     return this.messageRepo.save({
       content: message.content,
+      recipientUuid: message.recipient,
       author: user,
-      recipient: toUser,
-      channel: channel,
     });
   }
 
-  getMessages(query: QueryMessageInput, user: User) {
-    const where: any = {
-      authorId: user.id,
-    };
-
-    if (query.channel) {
-      where.channelUuid = query.channel;
-    }
-
-    if (query.to) {
-      where.recipientUuid = query.to;
-    }
-
-    return this.messageRepo.find({
-      where,
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+  getMessages(recipients: string[], user: User) {
+    return [];
   }
 
   getAuthor(message: Message) {

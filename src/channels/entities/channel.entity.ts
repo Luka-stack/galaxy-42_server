@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   Generated,
-  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -18,7 +17,6 @@ export class Channel {
   @Column()
   uuid: string;
 
-  @Index({ unique: true })
   @Column()
   name: string;
 

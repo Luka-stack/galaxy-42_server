@@ -1,16 +1,13 @@
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Generated,
   Index,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Channel } from '../../channels/entities/channel.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('messages')
@@ -31,25 +28,10 @@ export class Message {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   author: User;
 
-  @Column({ nullable: true })
-  recipientUuid: string | null;
-
-  @ManyToOne(() => User, { onDelete: 'CASCADE', nullable: true })
-  recipient: User | null;
-
-  @Column({ nullable: true })
-  channelUuid: string | null;
-
-  @ManyToOne(() => Channel, { onDelete: 'CASCADE', nullable: true })
-  channel: Channel | null;
+  @Column()
+  recipient: string;
 
   @Index()
   @CreateDateColumn()
   createdAt: Date;
-
-  @BeforeInsert()
-  insertLookUpFields() {
-    this.recipientUuid = this.recipient?.uuid || null;
-    this.channelUuid = this.channel?.uuid || null;
-  }
 }
