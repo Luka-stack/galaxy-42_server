@@ -47,6 +47,7 @@ type Message {
 input MessageInput {
   content: String!
   recipient: String!
+  toChannel: Boolean!
 }
 
 type Mutation {
@@ -103,7 +104,7 @@ type PlanetsUser {
 }
 
 type Query {
-  getMessages(recipients: [String!]!): [Message!]!
+  getMessages(query: QueryMessageInput!): [Message!]!
   getMyPlanets: [Planet!]!
   getNotifications: [Notification!]!
   getPlanet(planetUuid: String!): Planet!
@@ -115,6 +116,11 @@ type Query {
   queryPlanets(query: QueryPlanetInput!): [Planet!]!
   refreshToken: LoginResponseType!
   users: [User!]!
+}
+
+input QueryMessageInput {
+  recipient: String!
+  toChannel: Boolean!
 }
 
 input QueryPlanetInput {

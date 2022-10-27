@@ -86,6 +86,8 @@ export class PlanetsService {
       throw new ForbiddenException();
     }
 
+    console.log(planet);
+
     return planet;
   }
 

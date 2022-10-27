@@ -31,6 +31,9 @@ export class Message {
   @Column()
   recipient: string;
 
+  @Column()
+  toChannel: boolean;
+
   @Index()
   @CreateDateColumn()
   createdAt: Date;
