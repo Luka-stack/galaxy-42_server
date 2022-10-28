@@ -42,7 +42,7 @@ export class ChannelsService {
       name: channelInput.name,
     });
     if (dbChannel) {
-      return new BadRequestException('Group name must be unique');
+      return new BadRequestException('Channel name must be unique');
     }
 
     return this.channelRepo.save({

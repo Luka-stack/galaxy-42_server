@@ -33,7 +33,17 @@ export class MessagesService {
         author: user,
       });
 
-      this.pubSub.publish('messageCreated', { newMessage, planetId: 4 });
+      let planetId = 0;
+
+      if (message.toChannel) {
+        const channel = await this.channelRepo.findOneBy({
+          uuid: message.recipient,
+        });
+
+        planetId = channel.planetId;
+      }
+
+      this.pubSub.publish('messageCreated', { newMessage, planetId });
       return true;
     } catch (error) {
       console.log('SendMessage Error:', error);

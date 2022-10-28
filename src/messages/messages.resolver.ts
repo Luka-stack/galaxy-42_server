@@ -37,16 +37,15 @@ export class MessagesResolver {
   @Subscription(() => MessageType, {
     resolve: (v) => v.newMessage,
     filter: (payload, _varables, context) => {
-      if (!payload.newMessage.toChannel) {
-        return (
-          payload.newMessage.recipient === context.req.user.uuid ||
-          payload.newMessage.author.uuid === context.req.user.uuid
-        );
-      } else {
+      if (payload.newMessage.toChannel) {
         return context.req.user.planets.find(
           (p) => p.planetId == payload.planetId,
         );
       }
+      return (
+        payload.newMessage.recipient === context.req.user.uuid ||
+        payload.newMessage.author.uuid === context.req.user.uuid
+      );
     },
   })
   @UseGuards(JwtAuthGuard)
