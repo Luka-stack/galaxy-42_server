@@ -6,6 +6,7 @@ import {
   Query,
   ResolveField,
   Resolver,
+  Subscription,
 } from '@nestjs/graphql';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -27,11 +28,30 @@ export class MessagesResolver {
     return this.messagesService.getMessages(query, user);
   }
 
-  //   TODO can return true/false after implementing subscriptions
-  @Mutation(() => MessageType)
+  @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   sendMessage(@Args('message') message: MessageInput, @GetUser() user: User) {
     return this.messagesService.sendMessage(message, user);
+  }
+
+  @Subscription(() => MessageType, {
+    resolve: (v) => v.newMessage,
+    filter: (payload, _varables, context) => {
+      if (!payload.newMessage.toChannel) {
+        return (
+          payload.newMessage.recipient === context.req.user.uuid ||
+          payload.newMessage.author.uuid === context.req.user.uuid
+        );
+      } else {
+        return context.req.user.planets.find(
+          (p) => p.planetId == payload.planetId,
+        );
+      }
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  messageCreated() {
+    return this.messagesService.messageCreatedSub();
   }
 
   @ResolveField()

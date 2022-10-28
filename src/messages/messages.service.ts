@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PubSub } from 'graphql-subscriptions';
 import { In, Repository } from 'typeorm';
 
 import { Channel } from '../channels/entities/channel.entity';
@@ -11,6 +12,9 @@ import { QueryMessageInput } from './inputs/query-message.input';
 
 @Injectable()
 export class MessagesService {
+  @Inject('PUB_SUB')
+  private pubSub: PubSub;
+
   constructor(
     @InjectRepository(Message)
     private readonly messageRepo: Repository<Message>,
@@ -20,14 +24,21 @@ export class MessagesService {
     private readonly channelRepo: Repository<Channel>,
   ) {}
 
-  // TODO add subs
   async sendMessage(message: MessageInput, @GetUser() user: User) {
-    return this.messageRepo.save({
-      content: message.content,
-      recipient: message.recipient,
-      toChannel: message.toChannel,
-      author: user,
-    });
+    try {
+      const newMessage = await this.messageRepo.save({
+        content: message.content,
+        recipient: message.recipient,
+        toChannel: message.toChannel,
+        author: user,
+      });
+
+      this.pubSub.publish('messageCreated', { newMessage, planetId: 4 });
+      return true;
+    } catch (error) {
+      console.log('SendMessage Error:', error);
+      return false;
+    }
   }
 
   async getMessages(query: QueryMessageInput, user: User) {
@@ -52,6 +63,10 @@ export class MessagesService {
         },
       });
     }
+  }
+
+  messageCreatedSub() {
+    return this.pubSub.asyncIterator('messageCreated');
   }
 
   getAuthor(message: Message) {

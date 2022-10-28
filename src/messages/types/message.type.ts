@@ -18,4 +18,7 @@ export class MessageType {
 
   @Field()
   createdAt: Date;
+
+  @Field()
+  toChannel: boolean;
 }

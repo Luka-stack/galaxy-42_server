@@ -41,6 +41,7 @@ type Message {
   content: String!
   createdAt: DateTime!
   recipient: String!
+  toChannel: Boolean!
   uuid: ID!
 }
 
@@ -62,7 +63,7 @@ type Mutation {
   register(user: RegisterInput!): User!
   requestsViewed(requestUuids: [String!]!): [String!]!
   resolveRequest(rejected: Boolean!, requestUuid: String!): String!
-  sendMessage(message: MessageInput!): Message!
+  sendMessage(message: MessageInput!): Boolean!
   updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
   updateUser(userInput: UserInput!): User!
@@ -149,6 +150,7 @@ input RequestInput {
 }
 
 type Subscription {
+  messageCreated: Message!
   notificationCreated: Notification!
   requestCreated: CreatedRequest!
 }
