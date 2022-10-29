@@ -86,17 +86,22 @@ export class PlanetsService {
       throw new ForbiddenException();
     }
 
-    console.log(planet);
-
     return planet;
   }
 
-  async getMyPlanets(user: User): Promise<Planet[]> {
-    const myPlanetsIds = user.planets.map((p) => p.planetId);
+  async getMyPlanet(planetUuid: string, user: User): Promise<Planet> {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
+    if (!planet) {
+      throw new UserInputError('Planet not found');
+    }
 
-    return this.planetRepo.find({
-      where: { id: In(myPlanetsIds) },
-    });
+    const amIPart = user.planets.some((p) => p.planetId === planet.id);
+
+    if (!amIPart) {
+      throw new ForbiddenException();
+    }
+
+    return planet;
   }
 
   async createPlanet(user: User, planetInput: PlanetInput): Promise<Planet> {

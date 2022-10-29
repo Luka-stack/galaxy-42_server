@@ -106,7 +106,7 @@ type PlanetsUser {
 
 type Query {
   getMessages(query: QueryMessageInput!): [Message!]!
-  getMyPlanets: [Planet!]!
+  getMyPlanet(planetUuid: String!): Planet!
   getNotifications: [Notification!]!
   getPlanet(planetUuid: String!): Planet!
   getPlanetAuth(planetUuid: String!): Planet!
