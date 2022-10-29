@@ -2,6 +2,16 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Channel {
+  name: String!
+  uuid: ID!
+}
+
+input ChannelInput {
+  name: String!
+  planetId: String!
+}
+
 type CombineRequest {
   planets: [Request!]!
   users: [Request!]!
@@ -26,7 +36,23 @@ type LoginResponseType {
   accessToken: String!
 }
 
+type Message {
+  author: User!
+  content: String!
+  createdAt: DateTime!
+  recipient: String!
+  toChannel: Boolean!
+  uuid: ID!
+}
+
+input MessageInput {
+  content: String!
+  recipient: String!
+  toChannel: Boolean!
+}
+
 type Mutation {
+  createChannel(channel: ChannelInput!): Channel!
   createPlanet(planet: PlanetInput!): Planet!
   createRequest(request: RequestInput!): Boolean!
   deleteNotification(notificationUuids: [String!]!): [String!]!
@@ -37,6 +63,7 @@ type Mutation {
   register(user: RegisterInput!): User!
   requestsViewed(requestUuids: [String!]!): [String!]!
   resolveRequest(rejected: Boolean!, requestUuid: String!): String!
+  sendMessage(message: MessageInput!): Boolean!
   updatePassword(new: String!, old: String!): Boolean!
   updatePlanet(planet: UpdatePlanetInput!, planetUuid: String!): Planet!
   updateUser(userInput: UserInput!): User!
@@ -52,6 +79,7 @@ type Notification {
 
 type Planet {
   bio: String!
+  channels: [Channel!]!
   createdAt: Float!
   imageUrl: String!
   isPublic: Boolean!
@@ -77,6 +105,8 @@ type PlanetsUser {
 }
 
 type Query {
+  getMessages(query: QueryMessageInput!): [Message!]!
+  getMyPlanet(planetUuid: String!): Planet!
   getNotifications: [Notification!]!
   getPlanet(planetUuid: String!): Planet!
   getPlanetAuth(planetUuid: String!): Planet!
@@ -87,6 +117,11 @@ type Query {
   queryPlanets(query: QueryPlanetInput!): [Planet!]!
   refreshToken: LoginResponseType!
   users: [User!]!
+}
+
+input QueryMessageInput {
+  recipient: String!
+  toChannel: Boolean!
 }
 
 input QueryPlanetInput {
@@ -115,6 +150,7 @@ input RequestInput {
 }
 
 type Subscription {
+  messageCreated: Message!
   notificationCreated: Notification!
   requestCreated: CreatedRequest!
 }

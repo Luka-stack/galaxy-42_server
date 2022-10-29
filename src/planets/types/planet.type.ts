@@ -1,10 +1,13 @@
 import { ID, Field, ObjectType } from '@nestjs/graphql';
+import { ChannelType } from 'src/channels/types/channel.type';
+
+import { Channel } from '../../channels/entities/channel.entity';
 import { UsersPlanets } from '../entities/users-planets.entity';
 import { PlanetsUserType } from './planets-user.type';
 
 @ObjectType('Planet')
 export class PlanetType {
-  @Field((type) => ID)
+  @Field(() => ID)
   uuid: string;
 
   @Field()
@@ -28,6 +31,9 @@ export class PlanetType {
   @Field()
   createdAt: number;
 
-  @Field((type) => [PlanetsUserType])
+  @Field(() => [PlanetsUserType])
   users: UsersPlanets[];
+
+  @Field(() => [ChannelType])
+  channels: Channel[];
 }

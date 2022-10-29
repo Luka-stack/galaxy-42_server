@@ -13,6 +13,8 @@ import { getEnvPath } from './common/helpers/env.helper';
 import { UsersModule } from './users/users.module';
 import { Context } from 'graphql-ws';
 import { PubSubModule } from './pub-sub/pub-sub.module';
+import { MessagesModule } from './messages/messages.module';
+import { ChannelsModule } from './channels/channels.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 
@@ -21,16 +23,16 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'public'),
+    // }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       cache: true,
       autoLoadEntities: true,
       synchronize: true,
       host: 'localhost',
-      port: 4321,
+      port: 5432,
       database: 'galaxy_42',
       username: 'postgres',
       password: 'postgres',
@@ -85,6 +87,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
     RequestsModule,
     NotificationsModule,
     PubSubModule,
+    MessagesModule,
+    ChannelsModule,
   ],
 })
 export class AppModule {}

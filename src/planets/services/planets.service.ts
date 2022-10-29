@@ -1,10 +1,11 @@
 import {
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { UserInputError } from 'apollo-server-express';
 import { createWriteStream, unlinkSync } from 'fs';
 import { randomUUID } from 'crypto';
@@ -16,12 +17,15 @@ import { UpdatePlanetInput } from '../inputs/update-planet.input';
 import { UsersPlanetsService } from './users-planets.service';
 import { User } from '../../users/entities/user.entity';
 import { QueryPlanetInput } from '../inputs/query-planet.input';
+import { ChannelsService } from '../../channels/channels.service';
 
 @Injectable()
 export class PlanetsService {
   constructor(
     @InjectRepository(Planet) private readonly planetRepo: Repository<Planet>,
+    private readonly dataSource: DataSource,
     private readonly usersPlanetsService: UsersPlanetsService,
+    private readonly channelsService: ChannelsService,
   ) {}
 
   getPlanets(): Promise<Planet[]> {
@@ -85,6 +89,21 @@ export class PlanetsService {
     return planet;
   }
 
+  async getMyPlanet(planetUuid: string, user: User): Promise<Planet> {
+    const planet = await this.planetRepo.findOneBy({ uuid: planetUuid });
+    if (!planet) {
+      throw new UserInputError('Planet not found');
+    }
+
+    const amIPart = user.planets.some((p) => p.planetId === planet.id);
+
+    if (!amIPart) {
+      throw new ForbiddenException();
+    }
+
+    return planet;
+  }
+
   async createPlanet(user: User, planetInput: PlanetInput): Promise<Planet> {
     const dbPlanet = await this.planetRepo.findOneBy({
       name: planetInput.name,
@@ -96,7 +115,6 @@ export class PlanetsService {
     const newPlanet = this.planetRepo.create(planetInput);
 
     if (planetInput.image) {
-      // upload new
       const { createReadStream, filename } = await planetInput.image;
       const randomName = randomUUID() + filename;
       newPlanet.imageUrn = randomName;
@@ -106,8 +124,36 @@ export class PlanetsService {
       );
     }
 
-    const planetEntity = await this.planetRepo.save(newPlanet);
-    this.usersPlanetsService.createRelation(user, planetEntity, UserRole.ADMIN);
+    let planetEntity;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const planetObj = await this.planetRepo.save(newPlanet);
+      planetEntity = await queryRunner.manager.save(planetObj);
+
+      await queryRunner.manager.save(
+        this.channelsService.createChannel('public', planetEntity),
+      );
+      await queryRunner.manager.save(
+        this.usersPlanetsService.createRelation(
+          user,
+          planetEntity,
+          UserRole.ADMIN,
+        ),
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      console.log(err);
+
+      throw new InternalServerErrorException();
+    } finally {
+      await queryRunner.release();
+    }
 
     return planetEntity;
   }
@@ -176,6 +222,10 @@ export class PlanetsService {
 
   getPlanetsUser(planet: Planet) {
     return this.usersPlanetsService.getPlanetsUser(planet);
+  }
+
+  getPlanetsChannels(planet: Planet) {
+    return this.channelsService.getPlanetsChannels(planet);
   }
 
   getPlanetById(planetId: number) {

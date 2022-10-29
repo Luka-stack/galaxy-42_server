@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { Channel } from 'src/channels/entities/channel.entity';
 import {
   Column,
   CreateDateColumn,
@@ -44,6 +45,9 @@ export class Planet {
 
   @OneToMany(() => UsersPlanets, (userPlanets) => userPlanets.planet)
   users: UsersPlanets[];
+
+  @OneToMany(() => Channel, (channel) => channel.planet)
+  channels: Channel[];
 
   @Expose()
   get imageUrl(): string {
